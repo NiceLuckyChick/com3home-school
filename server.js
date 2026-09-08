@@ -2,6 +2,19 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+
+// 💡 [핵심] Render 서버에서도 라이브러리 버그가 자동으로 고쳐지도록 런타임 패치!
+try {
+  const constants = require('comcigan.ts/dist/constants.js');
+  if (constants && constants.RegExes) {
+    constants.RegExes.TeacherCode = /(?<=자료\.자료)\d+(?=\[th\])/;
+  }
+} catch (e) {
+  console.log('패치 알림:', e.message);
+}
 
 import ComciganModule from 'comcigan.ts';
 const Comcigan = typeof ComciganModule === 'function' 
@@ -23,7 +36,7 @@ const cache = { timetable: {}, meal: {} };
 const TIMETABLE_CACHE_TIME = 60 * 60 * 1000;
 const MEAL_CACHE_TIME = 12 * 60 * 60 * 1000;
 
-// 1. [학교 검색 API] (컴시간 학교 검색 + 나이스 코드 자동 매핑)
+// 1. [학교 검색 API]
 app.get('/api/search-school', async (req, res) => {
   try {
     const { name } = req.query;
@@ -31,10 +44,12 @@ app.get('/api/search-school', async (req, res) => {
       return res.status(400).json({ error: '학교 이름을 2자 이상 입력해주세요.' });
     }
 
+    const keyword = name.trim();
+
     // 컴시간 학교 검색
     let comciganSchools = [];
     try {
-      const result = await comcigan.searchSchools(name.trim());
+      const result = await comcigan.searchSchools(keyword);
       comciganSchools = result.map(s => ({
         comciganCode: s.code,
         name: s.name,
@@ -47,7 +62,7 @@ app.get('/api/search-school', async (req, res) => {
     // 나이스 학교 정보 검색 (급식용)
     let neisMap = {};
     try {
-      const neisRes = await fetch(`https://open.neis.go.kr/hub/schoolInfo?Type=json&SCHUL_NM=${encodeURIComponent(name.trim())}`);
+      const neisRes = await fetch(`https://open.neis.go.kr/hub/schoolInfo?Type=json&SCHUL_NM=${encodeURIComponent(keyword)}`);
       const neisJson = await neisRes.json();
       if (neisJson.schoolInfo) {
         neisJson.schoolInfo[1].row.forEach(row => {
@@ -77,7 +92,7 @@ app.get('/api/search-school', async (req, res) => {
   }
 });
 
-// 2. [주간 시간표 API] 월~금 5일치 시간표 한 번에 반환
+// 2. [주간 시간표 API]
 app.get('/api/timetable', async (req, res) => {
   try {
     const { comciganCode, grade, classNum } = req.query;
@@ -87,16 +102,13 @@ app.get('/api/timetable', async (req, res) => {
 
     const cacheKey = `${comciganCode}-${grade}-${classNum}`;
 
-    // 캐시 확인
     if (cache.timetable[cacheKey] && Date.now() - cache.timetable[cacheKey].time < TIMETABLE_CACHE_TIME) {
       return res.json({ source: 'cache', data: cache.timetable[cacheKey].data });
     }
 
-    // 컴시간에서 월~금(5일치) 시간표 통째로 가져오기
     const rawWeek = await comcigan.getTimetable(Number(comciganCode), Number(grade), Number(classNum));
 
-    // 요일별(월~금) 포맷팅
-    const weekData = (rawWeek || []).slice(0, 5).map((dayPeriods, dayIdx) => {
+    const weekData = (rawWeek || []).slice(0, 5).map((dayPeriods) => {
       return (dayPeriods || []).map((p, pIdx) => ({
         period: pIdx + 1,
         subject: p.subject || '수업 없음',
@@ -110,7 +122,7 @@ app.get('/api/timetable', async (req, res) => {
     cache.timetable[cacheKey] = { time: Date.now(), data: weekData };
     res.json({ source: 'live', data: weekData });
   } catch (error) {
-    console.error('컴시간 시간표 에러:', error);
+    console.error('시간표 에러:', error);
     res.status(500).json({ error: '시간표를 불러오는 중 오류가 발생했습니다.' });
   }
 });
