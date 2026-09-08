@@ -6,8 +6,8 @@
   <title>Com3home - 주간 시간표 & 급식</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="/manifest.json">
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-<link rel="manifest" href="/manifest.json">
   
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Pretendard", -apple-system, sans-serif; }
@@ -18,17 +18,16 @@
       display: flex; flex-direction: column; box-shadow: 0 0 25px rgba(0,0,0,0.06); position: relative;
     }
 
-    /* 상단 헤더 */
     .header { padding: 22px 20px 14px; display: flex; justify-content: space-between; align-items: flex-end; }
     .header-left h1 { font-size: 20px; font-weight: 800; color: #1E293B; }
     .header-left p { font-size: 13px; color: #64748B; font-weight: 600; margin-top: 3px; }
     .header-right { display: flex; gap: 8px; align-items: center; }
-    .settings-btn {
+    
+    .icon-btn {
       background: #F1F5F9; border: none; border-radius: 50%; width: 34px; height: 34px;
-      display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 16px;
+      display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 15px;
     }
 
-    /* 메인 탭 */
     .tabs { display: flex; margin: 0 20px 12px; background: #E2E8F0; border-radius: 12px; padding: 4px; gap: 4px; }
     .tab-btn {
       flex: 1; border: none; padding: 10px; border-radius: 9px; background: none;
@@ -36,7 +35,6 @@
     }
     .tab-btn.active { background: #FFFFFF; color: #4F46E5; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
-    /* 요일 칩 */
     .weekday-bar { display: flex; justify-content: space-between; margin: 0 20px 12px; gap: 6px; }
     .weekday-chip {
       flex: 1; padding: 9px 0; border: 1px solid #E2E8F0; background: #F8FAFC; border-radius: 10px;
@@ -53,7 +51,6 @@
     }
     .weekday-chip.active.is-today::after { background: #FFFFFF; }
 
-    /* 서브 타이틀 */
     .view-toggle-bar { display: flex; justify-content: space-between; align-items: center; margin: 0 20px 14px; }
     .view-title { font-size: 14px; font-weight: 700; color: #334155; }
     .toggle-btn {
@@ -63,7 +60,6 @@
 
     .content-area { flex: 1; padding: 0 20px 30px; }
 
-    /* 시간표 카드 */
     .period-card {
       background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 14px; padding: 14px 16px;
       margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
@@ -85,7 +81,6 @@
     }
     .original-subject { font-size: 10px; color: #D97706; margin-top: 2px; }
 
-    /* 전체 격자표 */
     .grid-table {
       width: 100%; border-collapse: collapse; background: #FFFFFF; border-radius: 14px;
       overflow: hidden; border: 1px solid #E2E8F0;
@@ -96,7 +91,6 @@
     .grid-teacher { font-size: 11px; color: #64748B; margin-top: 2px; }
     .grid-changed { background: #FEF3C7 !important; }
 
-    /* 급식 카드 */
     .meal-card {
       background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 18px; padding: 22px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.03);
@@ -143,7 +137,8 @@
       <p id="classDisplay">- 학년 - 반</p>
     </div>
     <div class="header-right">
-      <button class="settings-btn" onclick="openModal()" title="설정">⚙️</button>
+      <button class="icon-btn" onclick="shareClassLink()" title="우리 반 링크 복사">🔗</button>
+      <button class="icon-btn" onclick="openModal()" title="설정">⚙️</button>
     </div>
   </div>
 
@@ -152,7 +147,6 @@
     <button class="tab-btn" id="tabMeal" onclick="switchMainTab('meal')">🍱 급식표</button>
   </div>
 
-  <!-- 요일 선택 칩 -->
   <div class="weekday-bar" id="weekdayBar">
     <button class="weekday-chip" onclick="selectDay(0)">월</button>
     <button class="weekday-chip" onclick="selectDay(1)">화</button>
@@ -208,13 +202,14 @@
 
 <script>
   let mainTab = 'timetable';
-  let selectedDayIdx = 0;    // 0(월) ~ 4(금)
+  let selectedDayIdx = 0;
   let isGridView = false;
   let weekData = null;
   let mealCacheByDay = {};
 
   const dayNames = ['월', '화', '수', '목', '금'];
 
+  // 기본값 (원하는 학교가 있다면 여기에 기본 코드를 박아두셔도 됩니다)
   let userConfig = {
     schoolName: '',
     comciganCode: '',
@@ -259,7 +254,26 @@
     }
   }
 
-  function loadSavedConfig() {
+  // 💡 [핵심] URL 파라미터 또는 로컬 스토리지에서 자동 로드
+  async function loadInitialConfig() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlSc = urlParams.get('sc');
+    const urlGrade = urlParams.get('g');
+    const urlClass = urlParams.get('c');
+
+    // 1) URL에 ?sc=16082&g=2&c=3 이 붙어있는 경우 (단톡방 공유 링크로 들어옴)
+    if (urlSc && urlGrade && urlClass) {
+      userConfig.comciganCode = urlSc;
+      userConfig.grade = urlGrade;
+      userConfig.classNum = urlClass;
+      userConfig.schoolName = urlParams.get('name') || '우리 학교';
+      localStorage.setItem('com3home_school_config', JSON.stringify(userConfig));
+      updateHeaderUI();
+      loadTimetable();
+      return;
+    }
+
+    // 2) 내 폰에 저장된 정보가 있는 경우
     const saved = localStorage.getItem('com3home_school_config');
     if (saved) {
       userConfig = JSON.parse(saved);
@@ -343,12 +357,33 @@
     userConfig.grade = grade;
     userConfig.classNum = classNum;
 
+    // 브라우저 영구 저장
     localStorage.setItem('com3home_school_config', JSON.stringify(userConfig));
+
+    // 주소창 URL 깔끔하게 업데이트 (새로고침해도 유지)
+    const newUrl = `${window.location.pathname}?sc=${userConfig.comciganCode}&g=${userConfig.grade}&c=${userConfig.classNum}&name=${encodeURIComponent(userConfig.schoolName)}`;
+    window.history.replaceState({}, '', newUrl);
+
     updateHeaderUI();
     closeModal();
     mealCacheByDay = {};
     if (mainTab === 'timetable') loadTimetable();
     else loadMealByDay(selectedDayIdx);
+  }
+
+  // 💡 [단톡방 공유 버튼 기능]
+  function shareClassLink() {
+    if (!userConfig.comciganCode) {
+      alert('먼저 학교와 반을 설정해주세요!');
+      return;
+    }
+    const shareUrl = `${window.location.origin}${window.location.pathname}?sc=${userConfig.comciganCode}&g=${userConfig.grade}&c=${userConfig.classNum}&name=${encodeURIComponent(userConfig.schoolName)}`;
+    
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      alert(`우리 반 시간표 링크가 복사되었습니다! 🎉\n단톡방에 붙여넣기 해보세요:\n${shareUrl}`);
+    }).catch(() => {
+      prompt('아래 링크를 복사해서 친구들에게 보내세요:', shareUrl);
+    });
   }
 
   function switchMainTab(tab) {
@@ -401,7 +436,6 @@
     }
   }
 
-  // 시간표 렌더링 (숫자 22 완벽 방어 처리 적용)
   function renderTimetableUI() {
     if (!weekData) return;
     const box = document.getElementById('contentBox');
@@ -426,7 +460,6 @@
         for (let d = 0; d < 5; d++) {
           const item = (weekData[d] && weekData[d][p - 1]) ? weekData[d][p - 1] : null;
           if (item && item.subject !== '없음') {
-            // 💡 숫자 22가 들어와도 String()으로 안전하게 변환!
             const rawSub = item.subject != null ? String(item.subject).trim() : '수업 없음';
             const isNum = /^\d+$/.test(rawSub);
             const subTitle = isNum ? `동아리(${rawSub})` : rawSub;
@@ -457,7 +490,6 @@
 
       let html = '';
       daySchedule.forEach(item => {
-        // 💡 핵심: 어떤 타입이든 String()으로 감싸서 에러 방지!
         const rawSubject = item.subject != null ? String(item.subject).trim() : '수업 없음';
         const isNumberOnly = /^\d+$/.test(rawSubject);
         const displaySubject = isNumberOnly ? `동아리 (${rawSubject})` : rawSubject;
@@ -494,7 +526,6 @@
     }
   }
 
-  // 급식 불러오기
   async function loadMealByDay(dayIdx) {
     const box = document.getElementById('contentBox');
     const targetDateInfo = getWeekDate(dayIdx);
@@ -563,7 +594,7 @@
   }
 
   initToday();
-  loadSavedConfig();
+  loadInitialConfig();
 </script>
 
 </body>
