@@ -13,9 +13,37 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Pretendard", -apple-system, sans-serif; }
     body { background-color: #F1F4F9; display: flex; justify-content: center; min-height: 100vh; }
     
+    /* 기본 모바일 레이아웃 */
     .app-container {
       width: 100%; max-width: 460px; background: #FFFFFF; min-height: 100vh;
       display: flex; flex-direction: column; box-shadow: 0 0 25px rgba(0,0,0,0.06); position: relative;
+      transition: max-width 0.3s ease;
+    }
+
+    /* 🖥️ [PC 대화면 반응형 미디어쿼리] */
+    @media (min-width: 768px) {
+      body { padding: 30px 20px; align-items: flex-start; }
+      .app-container {
+        max-width: 1000px;
+        min-height: auto;
+        border-radius: 24px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+      }
+      .period-list-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+      .period-card { margin-bottom: 0 !important; }
+      .grid-table th { padding: 14px 10px !important; font-size: 14px !important; }
+      .grid-table td { padding: 16px 10px !important; }
+      .grid-subject { font-size: 15px !important; }
+      .grid-teacher { font-size: 12px !important; }
+      .dish-list {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
     }
 
     .header { padding: 22px 20px 14px; display: flex; justify-content: space-between; align-items: flex-end; }
@@ -106,7 +134,6 @@
     .empty { text-align: center; color: #94A3B8; margin-top: 60px; font-size: 14px; }
     .footer { text-align: center; padding: 15px; font-size: 11px; color: #94A3B8; border-top: 1px solid #F1F5F9; }
 
-    /* 모달 */
     .modal-overlay {
       position: absolute; top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 100;
@@ -203,13 +230,13 @@
 <script>
   let mainTab = 'timetable';
   let selectedDayIdx = 0;
-  let isGridView = false;
+  // 💡 PC(화면 너비 768px 이상)에서는 처음부터 5일 전체 주간표가 기본으로 시원하게 열림!
+  let isGridView = window.innerWidth >= 768;
   let weekData = null;
   let mealCacheByDay = {};
 
   const dayNames = ['월', '화', '수', '목', '금'];
 
-  // 기본값 (원하는 학교가 있다면 여기에 기본 코드를 박아두셔도 됩니다)
   let userConfig = {
     schoolName: '',
     comciganCode: '',
@@ -254,14 +281,12 @@
     }
   }
 
-  // 💡 [핵심] URL 파라미터 또는 로컬 스토리지에서 자동 로드
   async function loadInitialConfig() {
     const urlParams = new URLSearchParams(window.location.search);
     const urlSc = urlParams.get('sc');
     const urlGrade = urlParams.get('g');
     const urlClass = urlParams.get('c');
 
-    // 1) URL에 ?sc=16082&g=2&c=3 이 붙어있는 경우 (단톡방 공유 링크로 들어옴)
     if (urlSc && urlGrade && urlClass) {
       userConfig.comciganCode = urlSc;
       userConfig.grade = urlGrade;
@@ -273,7 +298,6 @@
       return;
     }
 
-    // 2) 내 폰에 저장된 정보가 있는 경우
     const saved = localStorage.getItem('com3home_school_config');
     if (saved) {
       userConfig = JSON.parse(saved);
@@ -357,10 +381,8 @@
     userConfig.grade = grade;
     userConfig.classNum = classNum;
 
-    // 브라우저 영구 저장
     localStorage.setItem('com3home_school_config', JSON.stringify(userConfig));
 
-    // 주소창 URL 깔끔하게 업데이트 (새로고침해도 유지)
     const newUrl = `${window.location.pathname}?sc=${userConfig.comciganCode}&g=${userConfig.grade}&c=${userConfig.classNum}&name=${encodeURIComponent(userConfig.schoolName)}`;
     window.history.replaceState({}, '', newUrl);
 
@@ -371,7 +393,6 @@
     else loadMealByDay(selectedDayIdx);
   }
 
-  // 💡 [단톡방 공유 버튼 기능]
   function shareClassLink() {
     if (!userConfig.comciganCode) {
       alert('먼저 학교와 반을 설정해주세요!');
@@ -488,7 +509,8 @@
         return;
       }
 
-      let html = '';
+      // 💡 PC 화면에서는 2열 그리드로 나란히 예쁘게 펼쳐짐
+      let html = '<div class="period-list-grid">';
       daySchedule.forEach(item => {
         const rawSubject = item.subject != null ? String(item.subject).trim() : '수업 없음';
         const isNumberOnly = /^\d+$/.test(rawSubject);
@@ -522,6 +544,7 @@
           </div>
         `;
       });
+      html += '</div>';
       box.innerHTML = html;
     }
   }
