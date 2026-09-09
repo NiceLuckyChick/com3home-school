@@ -288,7 +288,7 @@
   </main>
 
   <footer class="footer">
-    Copyright, Com3Home
+    © 2026. Com3Home Co. all rights reserved.
   </footer>
 
   <!-- 설정 모달 -->
@@ -385,7 +385,7 @@
     if (str.match(/샐러드|채소|무침|나물/)) keywords.push("신선한 채소");
 
     if (keywords.length > 0) {
-      return `오늘 식단은 <b>${keywords.slice(0, 2).join('와(과) ')}</b>가 포함되어 있어 맛과 영양을 모두 챙긴 든든한 구성입니다.`;
+      return `오늘 식단은 <b>${keywords.slice(0, 2).join('와(과) ')}</b>이/가 포함되어 있어 맛과 영양을 모두 챙긴 든든한 구성입니다.`;
     }
     return "영양소가 골고루 갖춰진 균형 잡힌 건강한 식단입니다.";
   }
@@ -537,7 +537,7 @@
     const dateInfo = getWeekDate(dayIdx);
 
     if (!userConfig.officeCode || !userConfig.schoolCode) 
-      return box.innerHTML = `<div class="state-msg">나이스 코드가 없습니다. 설정에서 다시 저장해주세요.</div>`;
+      return box.innerHTML = `<div class="state-msg">나이스 코드가 없습니다. 설정에서 다시 지정해주세요.</div>`;
     if (mealCacheByDay[dateInfo.ymd]) return renderMealCard(mealCacheByDay[dateInfo.ymd], dateInfo);
 
     box.innerHTML = '<div class="state-msg">급식 정보 조회 중...</div>';
