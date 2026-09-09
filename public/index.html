@@ -325,26 +325,32 @@
 </div>
 
 <script>
-  // 상태 변수
-  let mainTab = 'timetable'; // 'timetable' | 'meal'
+  let mainTab = 'timetable';
   let selectedDayIdx = 0;
-  let isWeeklyView = window.innerWidth >= 768; // PC 환경 기본 주간표
+  let isWeeklyView = window.innerWidth >= 768;
   let weekData = null;
   let mealCacheByDay = {};
 
   const dayNames = ['월', '화', '수', '목', '금'];
 
   let userConfig = {
-    schoolName: '', comciganCode: '', officeCode: '', schoolCode: '', grade: '', classNum: ''
+    schoolName: '',
+    comciganCode: '',
+    officeCode: '',
+    schoolCode: '',
+    grade: '',
+    classNum: ''
   };
   let tempSelectedSchool = null;
 
-  // 요일 및 날짜 계산
   function getWeekDate(dayIdx) {
     const now = new Date();
     const currentDay = now.getDay();
-    const distanceToMonday = (currentDay === 0 ? -6 : 1) - currentDay;
-    
+    // 주말(토,일) 접속 시 다음 주 평일을 보여주기 위한 보정
+    let distanceToMonday = (currentDay === 0 ? -6 : 1) - currentDay;
+    if (currentDay === 0) distanceToMonday = 1; // 일요일
+    if (currentDay === 6) distanceToMonday = 2; // 토요일
+
     const monday = new Date(now);
     monday.setDate(now.getDate() + distanceToMonday);
 
@@ -363,7 +369,6 @@
     };
   }
 
-  // 오늘 날짜 및 요일 칩 라벨 초기화
   function initDatesAndToday() {
     const today = new Date().getDay();
     if (today >= 1 && today <= 5) {
@@ -384,27 +389,35 @@
     }
   }
 
-  // URL 파라미터 및 로컬 스토리지 초기 로드
+  // 💡 설정 및 로컬스토리지 불러오기 (나이스 코드 유지 버그 픽스 완료)
   async function loadInitialConfig() {
+    const saved = localStorage.getItem('com3home_school_config');
+    let localData = saved ? JSON.parse(saved) : {};
+
     const urlParams = new URLSearchParams(window.location.search);
     const urlSc = urlParams.get('sc');
     const urlGrade = urlParams.get('g');
     const urlClass = urlParams.get('c');
+    const urlOfc = urlParams.get('ofc');
+    const urlScCode = urlParams.get('scCode');
 
     if (urlSc && urlGrade && urlClass) {
       userConfig.comciganCode = urlSc;
       userConfig.grade = urlGrade;
       userConfig.classNum = urlClass;
-      userConfig.schoolName = urlParams.get('name') || '우리 학교';
+      userConfig.schoolName = urlParams.get('name') || localData.schoolName || '우리 학교';
+      // url에 없으면 로컬데이터 백업본 사용
+      userConfig.officeCode = urlOfc || localData.officeCode || '';
+      userConfig.schoolCode = urlScCode || localData.schoolCode || '';
+
       localStorage.setItem('com3home_school_config', JSON.stringify(userConfig));
       updateHeaderUI();
       loadTimetable();
       return;
     }
 
-    const saved = localStorage.getItem('com3home_school_config');
     if (saved) {
-      userConfig = JSON.parse(saved);
+      userConfig = localData;
       updateHeaderUI();
       loadTimetable();
     } else {
@@ -419,15 +432,12 @@
     }
   }
 
-  /* --- 상태 동기화 및 탭 제어 (버그 원천 차단) --- */
-
   function updateControlUI() {
     const weekdayBar = document.getElementById('weekdayBar');
     const toggleBtn = document.getElementById('toggleViewBtn');
     const panelTitle = document.getElementById('panelTitle');
     const dateInfo = getWeekDate(selectedDayIdx);
 
-    // 요일 칩 active 클래스 동기화
     document.querySelectorAll('.weekday-chip').forEach((chip, idx) => {
       chip.classList.toggle('active', idx === selectedDayIdx && (!isWeeklyView || mainTab === 'meal'));
     });
@@ -437,7 +447,6 @@
       toggleBtn.style.display = 'none';
       panelTitle.innerText = `${dateInfo.display} (${dayNames[selectedDayIdx]}) 급식 식단`;
     } else {
-      // 시간표 탭
       toggleBtn.style.display = 'block';
       if (isWeeklyView) {
         weekdayBar.style.display = 'none';
@@ -468,7 +477,7 @@
   function selectDay(dayIdx) {
     selectedDayIdx = dayIdx;
     if (mainTab === 'timetable') {
-      isWeeklyView = false; // 요일 선택 시 일간 모드로 보기
+      isWeeklyView = false;
     }
     updateControlUI();
 
@@ -485,8 +494,6 @@
     updateControlUI();
     renderTimetableUI();
   }
-
-  /* --- 시간표 데이터 로드 및 렌더링 --- */
 
   async function loadTimetable() {
     if (!userConfig.comciganCode) return;
@@ -509,7 +516,6 @@
     const box = document.getElementById('contentBox');
 
     if (isWeeklyView) {
-      // 🖥️ 주간 전체 시간표 (와이드 테이블)
       let html = `
         <div class="table-container">
           <table class="grid-table">
@@ -549,7 +555,6 @@
       html += `</tbody></table></div>`;
       box.innerHTML = html;
     } else {
-      // 📱 일간 시간표 카드
       const daySchedule = weekData[selectedDayIdx] || [];
       if (daySchedule.length === 0) {
         box.innerHTML = '<div class="state-msg">이 날에는 등록된 수업이 없습니다.</div>';
@@ -593,11 +598,20 @@
     }
   }
 
-  /* --- 급식표 데이터 로드 및 렌더링 --- */
-
+  // 💡 나이스 급식 조회 오류 픽스
   async function loadMealByDay(dayIdx) {
     const box = document.getElementById('contentBox');
     const dateInfo = getWeekDate(dayIdx);
+
+    if (!userConfig.officeCode || !userConfig.schoolCode) {
+      box.innerHTML = `
+        <div class="state-msg">
+          나이스 학교 코드가 등록되어 있지 않습니다.<br>
+          우측 상단 <b>[설정]</b>에서 학교를 다시 검색해 선택해주세요.
+        </div>
+      `;
+      return;
+    }
 
     if (mealCacheByDay[dateInfo.ymd]) {
       renderMealCard(mealCacheByDay[dateInfo.ymd], dateInfo);
@@ -627,7 +641,7 @@
             <span class="meal-type-badge" style="background:#F1F5F9; color:#64748B;">식단 없음</span>
             <span class="meal-date-str">${dateInfo.display} (${dayNames[selectedDayIdx]})</span>
           </div>
-          <div class="state-msg" style="padding: 24px 0;">급식 정보가 없거나 휴일입니다.</div>
+          <div class="state-msg" style="padding: 24px 0;">급식 정보가 없거나 휴일/방학입니다.</div>
         </div>
       `;
       return;
@@ -659,8 +673,6 @@
 
     box.innerHTML = html;
   }
-
-  /* --- 설정 모달 & 링크 복사 --- */
 
   function openModal() {
     document.getElementById('modalOverlay').style.display = 'flex';
@@ -702,6 +714,7 @@
     document.getElementById('schoolList').style.display = 'none';
   }
 
+  // 💡 학교 저장 시 나이스 코드를 안전하게 저장/매핑
   function saveSettings() {
     const grade = document.getElementById('gradeInput').value;
     const classNum = document.getElementById('classInput').value;
@@ -718,15 +731,16 @@
     if (tempSelectedSchool) {
       userConfig.schoolName = tempSelectedSchool.name;
       userConfig.comciganCode = tempSelectedSchool.comciganCode;
-      userConfig.officeCode = tempSelectedSchool.officeCode;
-      userConfig.schoolCode = tempSelectedSchool.schoolCode;
+      userConfig.officeCode = tempSelectedSchool.officeCode || tempSelectedSchool.atptOfcdcScCode || '';
+      userConfig.schoolCode = tempSelectedSchool.schoolCode || tempSelectedSchool.sdSchulCode || '';
     }
     userConfig.grade = grade;
     userConfig.classNum = classNum;
 
     localStorage.setItem('com3home_school_config', JSON.stringify(userConfig));
 
-    const newUrl = `${window.location.pathname}?sc=${userConfig.comciganCode}&g=${userConfig.grade}&c=${userConfig.classNum}&name=${encodeURIComponent(userConfig.schoolName)}`;
+    // URL 업데이트 시 나이스 파라미터(ofc, scCode) 추가
+    const newUrl = `${window.location.pathname}?sc=${userConfig.comciganCode}&g=${userConfig.grade}&c=${userConfig.classNum}&ofc=${userConfig.officeCode}&scCode=${userConfig.schoolCode}&name=${encodeURIComponent(userConfig.schoolName)}`;
     window.history.replaceState({}, '', newUrl);
 
     updateHeaderUI();
@@ -741,7 +755,8 @@
       alert('설정에서 학교와 반을 먼저 지정해주세요.');
       return;
     }
-    const shareUrl = `${window.location.origin}${window.location.pathname}?sc=${userConfig.comciganCode}&g=${userConfig.grade}&c=${userConfig.classNum}&name=${encodeURIComponent(userConfig.schoolName)}`;
+    // 링크 공유 시 나이스 코드까지 필히 포함
+    const shareUrl = `${window.location.origin}${window.location.pathname}?sc=${userConfig.comciganCode}&g=${userConfig.grade}&c=${userConfig.classNum}&ofc=${userConfig.officeCode}&scCode=${userConfig.schoolCode}&name=${encodeURIComponent(userConfig.schoolName)}`;
     
     navigator.clipboard.writeText(shareUrl).then(() => {
       alert(`우리 반 바로가기 링크가 복사되었습니다!\n단톡방 등에 공유하세요.\n\n${shareUrl}`);
