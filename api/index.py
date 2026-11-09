@@ -20,12 +20,11 @@ def search_school(name: str = Query(..., min_length=2)):
         comcigan_list = []
         for s in schools:
             comcigan_list.append({
-                "name": str(s[0]),        # 학교명 (예: 서울고등학교)
-                "region": str(s[1]),      # 지역명 (예: 서울)
-                "comciganCode": str(s[2]) # 컴시간 코드
+                "name": str(s[0]),        
+                "region": str(s[1]),      
+                "comciganCode": str(s[2]) 
             })
 
-        # 나이스 급식 코드 검색
         neis_map = {}
         try:
             neis_url = f"https://open.neis.go.kr/hub/schoolInfo?Type=json&SCHUL_NM={name.strip()}"
