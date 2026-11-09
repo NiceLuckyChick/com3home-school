@@ -13,21 +13,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 1. 학교 검색 API
 @app.get("/api/search-school")
 def search_school(name: str = Query(..., min_length=2)):
     try:
         schools = get_school_code(name.strip())
         comcigan_list = []
         for s in schools:
-            # 💡 [핵심 수정] pycomcigan 반환 순서: s[0]은 학교명, s[1]은 지역명!
             comcigan_list.append({
                 "name": str(s[0]),        # 학교명 (예: 서울고등학교)
                 "region": str(s[1]),      # 지역명 (예: 서울)
                 "comciganCode": str(s[2]) # 컴시간 코드
             })
 
-        # 나이스 학교 정보 검색 (급식용 연동)
+        # 나이스 급식 코드 검색
         neis_map = {}
         try:
             neis_url = f"https://open.neis.go.kr/hub/schoolInfo?Type=json&SCHUL_NM={name.strip()}"
@@ -56,22 +54,20 @@ def search_school(name: str = Query(..., min_length=2)):
     except Exception as e:
         return {"error": str(e), "list": []}
 
-# 2. 주간 시간표 API
 @app.get("/api/timetable")
 def get_timetable(
-    schoolName: str = Query(None),
-    comciganCode: str = Query(None),
+    schoolName: str = Query(""),
+    comciganCode: str = Query(""),
     grade: int = Query(...),
     classNum: int = Query(...)
 ):
-    target = schoolName or comciganCode
+    target = schoolName.strip() if schoolName.strip() else comciganCode.strip()
     if not target:
         return {"error": "학교 정보가 없습니다.", "data": []}
 
     try:
-        # TimeTable에 학교명 또는 코드를 전달해 이번주(0) 시간표 가져오기
-        tt = TimeTable(target.strip(), week_num=0)
-        class_schedule = tt.timetable[grade][class_num]
+        tt = TimeTable(target, week_num=0)
+        class_schedule = tt.timetable[grade][classNum]
 
         week_data = []
         for day_periods in class_schedule:
@@ -90,7 +86,6 @@ def get_timetable(
     except Exception as e:
         return {"error": str(e), "data": []}
 
-# 3. 급식표 API
 @app.get("/api/meal")
 def get_meal(officeCode: str = Query(""), schoolCode: str = Query(""), ymd: str = Query("")):
     if not officeCode or not schoolCode or not ymd:
