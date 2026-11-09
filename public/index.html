@@ -8,314 +8,233 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="/manifest.json">
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-  <!-- 이미지 저장용 html2canvas 라이브러리 -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
+  
   <style>
-    /* 기본 테마 변수 (라이트) */
-    :root {
-      --bg: #F8FAFC;
-      --card-bg: #FFFFFF;
-      --text-main: #0F172A;
-      --text-sub: #64748B;
-      --border: #E2E8F0;
-      --border-focus: #CBD5E1;
-      --primary: #4F46E5;
-      --primary-hover: #4338CA;
-      --primary-light: #EEF2FF;
-      --warning-bg: #FEF3C7;
-      --warning-text: #B45309;
-      --warning-border: #FDE68A;
-      --ai-bg: #F5F3FF;
-      --ai-border: #DDD6FE;
-      --ai-text: #5B21B6;
-    }
-
-    /* 다크 테마 변수 (기본 적용) */
-    body.dark-theme {
-      --bg: #0a1a2f;
-      --card-bg: #112240;
-      --text-main: #E2E8F0;
-      --text-sub: #94A3B8;
-      --border: #233554;
-      --border-focus: #475569;
-      --primary: #6366F1;
-      --primary-hover: #4F46E5;
-      --primary-light: #1E293B;
-      --warning-bg: #332701;
-      --warning-text: #FDE68A;
-      --warning-border: #78350F;
-      --ai-bg: #171E36;
-      --ai-border: #312E81;
-      --ai-text: #A5B4FC;
-    }
-
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Pretendard", -apple-system, sans-serif; }
-    body { background-color: var(--bg); color: var(--text-main); display: flex; justify-content: center; min-height: 100vh; transition: background-color 0.2s, color 0.2s; }
-
-    /* 레이아웃 */
-    .app-container {
-      width: 100%; max-width: 480px; background: var(--card-bg); min-height: 100vh;
-      display: flex; flex-direction: column; border-left: 1px solid var(--border); border-right: 1px solid var(--border);
-      transition: max-width 0.2s ease, background-color 0.2s;
-    }
-
-    @media (min-width: 768px) {
-      body { padding: 24px 20px; align-items: flex-start; }
-      .app-container {
-        max-width: 1100px;
-        min-height: calc(100vh - 48px);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-      }
-      .content-area { padding: 24px !important; }
-      .period-list-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-      .grid-table th, .grid-table td { padding: 14px 8px !important; font-size: 14px !important; }
-    }
-
-    /* 상단 네비게이션 */
-    .navbar { padding: 18px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); }
-    .brand-title { font-size: 18px; font-weight: 700; color: var(--text-main); letter-spacing: -0.5px; }
-    .brand-sub { font-size: 13px; color: var(--primary); font-weight: 600; margin-top: 4px; }
-    .nav-actions { display: flex; gap: 6px; }
-    .btn-outline {
-      background: transparent; border: 1px solid var(--border); border-radius: 6px;
-      padding: 6px 10px; font-size: 12px; font-weight: 600; color: var(--text-main);
-      cursor: pointer; transition: 0.2s;
-    }
-    .btn-outline:hover { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
-
-    /* 탭 */
-    .tabs-wrapper { padding: 14px 20px 0; }
-    .tabs { display: flex; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 4px; gap: 4px; }
-    .tab-btn {
-      flex: 1; border: none; padding: 10px; border-radius: 6px; background: none;
-      font-size: 13px; font-weight: 700; color: var(--text-sub); cursor: pointer; transition: 0.2s;
-    }
-    .tab-btn.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-
-    /* 컨트롤 패널 */
-    .controls-panel { padding: 14px 20px; display: flex; flex-direction: column; gap: 12px; }
-    .controls-top { display: flex; justify-content: space-between; align-items: center; min-height: 32px; }
-    .panel-title { font-size: 14px; font-weight: 700; color: var(--text-main); }
-    .panel-actions { display: flex; gap: 6px; }
+    body { background-color: #F1F4F9; display: flex; justify-content: center; min-height: 100vh; }
     
-    .btn-sm {
-      background: var(--primary-light); color: var(--primary); border: 1px solid var(--border);
-      padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer;
+    /* 모바일 기본 레이아웃 */
+    .app-container {
+      width: 100%; max-width: 460px; background: #FFFFFF; min-height: 100vh;
+      display: flex; flex-direction: column; box-shadow: 0 0 25px rgba(0,0,0,0.06); position: relative;
+      transition: max-width 0.3s ease;
     }
-    .btn-sm:hover { filter: brightness(0.95); }
+
+    /* 🖥️ PC 대화면 반응형 (가로 768px 이상) */
+    @media (min-width: 768px) {
+      body { padding: 30px 20px; align-items: flex-start; }
+      .app-container {
+        max-width: 1000px;
+        min-height: auto;
+        border-radius: 24px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+      }
+      .period-list-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+      .period-card { margin-bottom: 0 !important; }
+      .grid-table th { padding: 14px 10px !important; font-size: 14px !important; }
+      .grid-table td { padding: 16px 10px !important; }
+      .grid-subject { font-size: 15px !important; }
+      .grid-teacher { font-size: 12px !important; }
+      .dish-list {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+    }
+
+    /* 상단 헤더 */
+    .header { padding: 22px 20px 14px; display: flex; justify-content: space-between; align-items: flex-end; }
+    .header-left h1 { font-size: 20px; font-weight: 800; color: #1E293B; }
+    .header-left p { font-size: 13px; color: #64748B; font-weight: 600; margin-top: 3px; }
+    .header-right { display: flex; gap: 8px; align-items: center; }
+    
+    .icon-btn {
+      background: #F1F5F9; border: none; border-radius: 50%; width: 34px; height: 34px;
+      display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 15px;
+    }
+
+    /* 메인 탭 */
+    .tabs { display: flex; margin: 0 20px 12px; background: #E2E8F0; border-radius: 12px; padding: 4px; gap: 4px; }
+    .tab-btn {
+      flex: 1; border: none; padding: 10px; border-radius: 9px; background: none;
+      font-size: 14px; font-weight: 700; color: #64748B; cursor: pointer; transition: 0.2s;
+    }
+    .tab-btn.active { background: #FFFFFF; color: #4F46E5; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
     /* 요일 칩 */
-    .weekday-bar { display: flex; gap: 6px; }
+    .weekday-bar { display: flex; justify-content: space-between; margin: 0 20px 12px; gap: 6px; }
     .weekday-chip {
-      flex: 1; padding: 8px 0; border: 1px solid var(--border); background: var(--bg);
-      border-radius: 6px; cursor: pointer; text-align: center; transition: 0.2s;
-      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      flex: 1; padding: 9px 0; border: 1px solid #E2E8F0; background: #F8FAFC; border-radius: 10px;
+      font-size: 13px; font-weight: 700; color: #64748B; cursor: pointer; text-align: center;
+      transition: all 0.2s ease; position: relative;
     }
-    .weekday-chip .day-name { font-size: 13px; font-weight: 700; color: var(--text-sub); }
-    .weekday-chip .day-date { font-size: 10px; font-weight: 500; color: var(--text-sub); opacity: 0.8; }
-    .weekday-chip.active { background: var(--primary); border-color: var(--primary); }
-    .weekday-chip.active .day-name, .weekday-chip.active .day-date { color: #FFFFFF; }
+    .weekday-chip.active {
+      background: #4F46E5; color: #FFFFFF; border-color: #4F46E5;
+      box-shadow: 0 3px 8px rgba(79, 70, 229, 0.25);
+    }
+    .weekday-chip.is-today::after {
+      content: ""; width: 4px; height: 4px; background: #10B981; border-radius: 50%;
+      position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
+    }
+    .weekday-chip.active.is-today::after { background: #FFFFFF; }
 
-    /* 컨텐츠 영역 */
-    .content-area { flex: 1; padding: 0 20px 24px; position: relative; }
+    /* 서브 타이틀 바 */
+    .view-toggle-bar { display: flex; justify-content: space-between; align-items: center; margin: 0 20px 14px; }
+    .view-title { font-size: 14px; font-weight: 700; color: #334155; }
+    .toggle-btn {
+      background: #EEF2FF; color: #4F46E5; border: none; border-radius: 10px;
+      padding: 5px 12px; font-size: 12px; font-weight: 700; cursor: pointer;
+    }
 
-    /* 시간표 - 일간 */
+    .content-area { flex: 1; padding: 0 20px 30px; }
+
+    /* 교시별 카드 */
     .period-card {
-      background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px;
-      padding: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;
+      background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 14px; padding: 14px 16px;
+      margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
     }
-    .period-card.changed { border-color: var(--warning-border); background: var(--warning-bg); }
     .period-left { display: flex; align-items: center; gap: 14px; }
-    .period-num {
-      background: var(--bg); border: 1px solid var(--border); color: var(--text-sub);
-      font-size: 13px; font-weight: 700; width: 40px; height: 40px; border-radius: 6px;
-      display: flex; justify-content: center; align-items: center; flex-shrink: 0;
+    .period-badge {
+      background: #EEF2F6; color: #475569; font-size: 12px; font-weight: 700;
+      padding: 6px 10px; border-radius: 8px; min-width: 52px; text-align: center;
     }
-    .subject-title { font-size: 15px; font-weight: 700; color: var(--text-main); }
-    .teacher-title { font-size: 12px; color: var(--text-sub); margin-top: 4px; }
-    .badge-changed {
-      background: transparent; color: var(--warning-text); font-size: 11px; font-weight: 700;
-      text-align: right; line-height: 1.4; border: 1px solid var(--warning-border); padding: 4px 6px; border-radius: 4px;
+    .subject-info h3 { font-size: 16px; font-weight: 700; color: #1E293B; }
+    .teacher-badge {
+      display: inline-flex; align-items: center; gap: 4px; font-size: 12px;
+      color: #64748B; font-weight: 500; margin-top: 3px;
     }
-    .orig-sub { font-size: 10px; text-decoration: line-through; opacity: 0.7; }
+    .changed-badge {
+      background: #FEF3C7; color: #B45309; font-size: 11px; font-weight: 700;
+      padding: 4px 8px; border-radius: 6px; text-align: right;
+    }
+    .original-subject { font-size: 10px; color: #D97706; margin-top: 2px; }
 
-    /* 시간표 - 주간 (테이블 꽉 차게 변경) */
-    .table-container { width: 100%; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-    .grid-table { width: 100%; border-collapse: collapse; table-layout: fixed; background: var(--card-bg); word-break: keep-all; }
-    .grid-table th {
-      background: var(--bg); padding: 8px 2px; font-size: 12px; font-weight: 700;
-      color: var(--text-sub); border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); text-align: center;
+    /* 주간 전체 격자표 */
+    .grid-table {
+      width: 100%; border-collapse: collapse; background: #FFFFFF; border-radius: 14px;
+      overflow: hidden; border: 1px solid #E2E8F0;
     }
-    .grid-table th:last-child { border-right: none; }
-    .grid-table td {
-      padding: 10px 2px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border);
-      text-align: center; vertical-align: middle; font-size: 12px;
-    }
-    .grid-table td:last-child { border-right: none; }
-    .table-period-num { font-weight: 700; color: var(--text-sub); background: var(--bg); width: 35px; }
-    .cell-sub { font-weight: 700; color: var(--text-main); margin-bottom: 3px; }
-    .cell-tea { font-size: 10px; color: var(--text-sub); }
-    .cell-changed { background: var(--warning-bg); }
-    .cell-changed .cell-sub { color: var(--warning-text); }
+    .grid-table th { background: #F8FAFC; padding: 10px 4px; font-size: 13px; font-weight: 700; color: #475569; border-bottom: 1px solid #E2E8F0; }
+    .grid-table td { padding: 10px 4px; border: 1px solid #F1F5F9; text-align: center; vertical-align: middle; }
+    .grid-subject { font-size: 13px; font-weight: 700; color: #1E293B; }
+    .grid-teacher { font-size: 11px; color: #64748B; margin-top: 2px; }
+    .grid-changed { background: #FEF3C7 !important; }
 
     /* 급식 카드 */
-    .meal-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
-    .meal-header-box { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
-    .meal-type-badge { background: var(--primary-light); color: var(--primary); font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 4px; }
-    .meal-date-str { font-size: 12px; color: var(--text-sub); font-weight: 600; }
-    .dish-list { display: flex; flex-direction: column; gap: 8px; list-style: none; }
-    .dish-item { font-size: 14px; font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
-    .dish-dot { width: 4px; height: 4px; background: var(--primary); border-radius: 50%; }
-    .meal-calorie { margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--border); font-size: 11px; color: var(--text-sub); text-align: right; }
-
-    /* AI 요약 박스 */
-    .ai-summary-box {
-      margin-top: 16px; background: var(--ai-bg); border: 1px dashed var(--ai-border);
-      border-radius: 8px; padding: 14px;
+    .meal-card {
+      background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 18px; padding: 22px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
     }
-    .ai-summary-title { font-size: 12px; font-weight: 700; color: var(--ai-text); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
-    .ai-summary-title::before { content: "AI 요약"; background: var(--primary); color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 9px; }
-    .ai-summary-text { font-size: 13px; color: var(--text-main); line-height: 1.5; font-weight: 500; }
+    .meal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .meal-tag { background: #FEF3C7; color: #D97706; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 6px; }
+    .meal-date-label { font-size: 13px; color: #64748B; font-weight: 600; }
+    .dish-list { display: flex; flex-direction: column; gap: 10px; }
+    .dish-item { font-size: 15px; color: #1E293B; font-weight: 600; display: flex; align-items: center; }
+    .dish-item::before { content: ""; width: 6px; height: 6px; background-color: #4F46E5; border-radius: 50%; margin-right: 12px; }
+    .calorie-info { margin-top: 20px; padding-top: 14px; border-top: 1px dashed #E2E8F0; font-size: 12px; color: #94A3B8; text-align: right; font-weight: 500; }
 
-    /* 안내 메시지 */
-    .state-msg { text-align: center; color: var(--text-sub); padding: 40px 20px; font-size: 13px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); }
+    .empty { text-align: center; color: #94A3B8; margin-top: 60px; font-size: 14px; }
+    .footer { text-align: center; padding: 15px; font-size: 11px; color: #94A3B8; border-top: 1px solid #F1F5F9; }
 
     /* 설정 모달 */
     .modal-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px;
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 100;
     }
-    .modal { background: var(--card-bg); width: 100%; max-width: 360px; border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
-    .modal h2 { font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 16px; }
-    .form-group { margin-bottom: 14px; }
-    .form-group label { display: block; font-size: 11px; font-weight: 700; color: var(--text-sub); margin-bottom: 6px; }
-    .form-control {
-      width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;
-      font-size: 13px; background: var(--bg); color: var(--text-main); outline: none;
-    }
-    .form-control:focus { border-color: var(--primary); }
+    .modal { background: #FFFFFF; width: 88%; max-width: 360px; border-radius: 20px; padding: 22px; }
+    .modal h2 { font-size: 18px; font-weight: 800; color: #1E293B; margin-bottom: 14px; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 700; color: #64748B; margin-bottom: 5px; }
+    .form-control { width: 100%; padding: 10px 12px; border: 1px solid #CBD5E1; border-radius: 10px; font-size: 14px; outline: none; }
     .search-box { display: flex; gap: 6px; }
-    .btn-search { background: var(--text-main); color: var(--card-bg); border: none; border-radius: 6px; padding: 0 14px; font-weight: 700; font-size: 12px; cursor: pointer; }
-    .school-list { max-height: 120px; overflow-y: auto; border: 1px solid var(--border); border-radius: 6px; margin-top: 6px; display: none; background: var(--bg); }
-    .school-item { padding: 10px; font-size: 12px; border-bottom: 1px solid var(--border); cursor: pointer; }
-    .school-item:hover { background: var(--primary-light); color: var(--primary); }
+    .search-btn { background: #4F46E5; color: #fff; border: none; border-radius: 10px; padding: 0 14px; font-weight: 700; cursor: pointer; }
+    .school-list { max-height: 140px; overflow-y: auto; border: 1px solid #E2E8F0; border-radius: 10px; margin-top: 6px; display: none; }
+    .school-item { padding: 9px; font-size: 13px; border-bottom: 1px solid #F1F5F9; cursor: pointer; }
+    .school-item:hover { background: #EEF2FF; color: #4F46E5; font-weight: 700; }
     .row { display: flex; gap: 10px; }
-    .modal-actions { display: flex; gap: 8px; margin-top: 20px; }
-    .modal-btn { flex: 1; padding: 10px; border-radius: 6px; border: none; font-size: 13px; font-weight: 700; cursor: pointer; }
-    .btn-save { background: var(--primary); color: #fff; }
-    .btn-cancel { background: var(--bg); color: var(--text-sub); border: 1px solid var(--border); }
-
-    .footer { text-align: center; padding: 16px; font-size: 11px; color: var(--text-sub); border-top: 1px solid var(--border); margin-top: auto; }
-
-    /* 인쇄용 CSS */
-    @media print {
-      body { background: #fff !important; color: #000 !important; }
-      body.dark-theme { --bg: #fff; --card-bg: #fff; --text-main: #000; --border: #ccc; }
-      .app-container { border: none !important; box-shadow: none !important; max-width: 100% !important; }
-      .navbar, .tabs-wrapper, .controls-top, .weekday-bar, .footer, .btn-outline, .btn-sm { display: none !important; }
-      .content-area { padding: 0 !important; }
-      .grid-table { border: 2px solid #000; }
-      .grid-table th, .grid-table td { border: 1px solid #000 !important; color: #000 !important; }
-      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-    }
+    .modal-actions { display: flex; gap: 8px; margin-top: 18px; }
+    .modal-btn { flex: 1; padding: 11px; border-radius: 10px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .btn-save { background: #4F46E5; color: #fff; }
+    .btn-cancel { background: #F1F5F9; color: #64748B; }
   </style>
 </head>
-<body class="dark-theme"> <!-- 기본 다크테마 적용 -->
+<body>
 
-<div class="app-container" id="appContainer">
-  <!-- 네비게이션 -->
-  <header class="navbar">
-    <div>
-      <div class="brand-title" id="schoolNameDisplay">설정 필요</div>
-      <div class="brand-sub" id="classDisplay">-학년 -반</div>
+<div class="app-container">
+  <!-- 헤더 -->
+  <div class="header">
+    <div class="header-left">
+      <h1 id="schoolNameDisplay">학교를 설정해주세요</h1>
+      <p id="classDisplay">- 학년 - 반</p>
     </div>
-    <div class="nav-actions">
-      <button class="btn-outline" onclick="toggleTheme()">테마 전환</button>
-      <button class="btn-outline" onclick="shareClassLink()">링크 공유</button>
-      <button class="btn-outline" onclick="openModal()">설정</button>
-    </div>
-  </header>
-
-  <!-- 탭 -->
-  <div class="tabs-wrapper">
-    <div class="tabs">
-      <button class="tab-btn active" id="tabTimetable" onclick="switchMainTab('timetable')">시간표</button>
-      <button class="tab-btn" id="tabMeal" onclick="switchMainTab('meal')">급식</button>
+    <div class="header-right">
+      <button class="icon-btn" onclick="shareClassLink()" title="우리 반 링크 복사">🔗</button>
+      <button class="icon-btn" onclick="openModal()" title="설정">⚙️</button>
     </div>
   </div>
 
-  <!-- 컨트롤 패널 -->
-  <div class="controls-panel">
-    <div class="controls-top">
-      <span class="panel-title" id="panelTitle">시간표</span>
-      <div class="panel-actions">
-        <button class="btn-sm" onclick="exportAsImage()">이미지 저장</button>
-        <button class="btn-sm" onclick="window.print()">인쇄/PDF</button>
-        <button class="btn-sm" id="toggleViewBtn" onclick="toggleWeekGrid()">전체 주간표 보기</button>
-      </div>
-    </div>
-    
-    <div class="weekday-bar" id="weekdayBar">
-      <button class="weekday-chip" onclick="selectDay(0)">
-        <span class="day-name">월</span>
-        <span class="day-date" id="dateTag0">-</span>
-      </button>
-      <button class="weekday-chip" onclick="selectDay(1)">
-        <span class="day-name">화</span>
-        <span class="day-date" id="dateTag1">-</span>
-      </button>
-      <button class="weekday-chip" onclick="selectDay(2)">
-        <span class="day-name">수</span>
-        <span class="day-date" id="dateTag2">-</span>
-      </button>
-      <button class="weekday-chip" onclick="selectDay(3)">
-        <span class="day-name">목</span>
-        <span class="day-date" id="dateTag3">-</span>
-      </button>
-      <button class="weekday-chip" onclick="selectDay(4)">
-        <span class="day-name">금</span>
-        <span class="day-date" id="dateTag4">-</span>
-      </button>
+  <!-- 탭 메뉴 -->
+  <div class="tabs">
+    <button class="tab-btn active" id="tabTimetable" onclick="switchMainTab('timetable')">⏰ 시간표</button>
+    <button class="tab-btn" id="tabMeal" onclick="switchMainTab('meal')">🍱 급식표</button>
+  </div>
+
+  <!-- 요일 선택 칩 -->
+  <div class="weekday-bar" id="weekdayBar">
+    <button class="weekday-chip" onclick="selectDay(0)">월</button>
+    <button class="weekday-chip" onclick="selectDay(1)">화</button>
+    <button class="weekday-chip" onclick="selectDay(2)">수</button>
+    <button class="weekday-chip" onclick="selectDay(3)">목</button>
+    <button class="weekday-chip" onclick="selectDay(4)">금</button>
+  </div>
+
+  <!-- 서브 타이틀 & 주간표 토글 -->
+  <div class="view-toggle-bar">
+    <span class="view-title" id="viewTitle">월요일 시간표</span>
+    <button class="toggle-btn" id="toggleViewBtn" onclick="toggleWeekGrid()">📅 전체 주간표</button>
+  </div>
+
+  <!-- 본문 컨텐츠 -->
+  <div class="content-area">
+    <div id="contentBox">
+      <div class="empty">설정(⚙️)에서 학교와 반을 먼저 지정해주세요!</div>
     </div>
   </div>
 
-  <!-- 메인 컨텐츠 (이미지 저장 영역) -->
-  <main class="content-area" id="contentBox">
-    <div class="state-msg">설정에서 학교 정보를 등록하세요.</div>
-  </main>
-
-  <footer class="footer">
-    © 2026. Com3Home Co. all rights reserved.
-  </footer>
+  <div class="footer">
+    Com3home Team Project • 컴시간 실시간 & 나이스 급식
+  </div>
 
   <!-- 설정 모달 -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
-      <h2>학교 및 학급 설정</h2>
+      <h2>🏫 학교 및 학급 설정</h2>
       <div class="form-group">
         <label>학교 검색</label>
         <div class="search-box">
-          <input type="text" id="schoolInput" class="form-control" placeholder="예: 평촌중">
-          <button class="btn-search" onclick="searchSchool()">검색</button>
+          <input type="text" id="schoolInput" class="form-control" placeholder="예: 서울고">
+          <button class="search-btn" onclick="searchSchool()">검색</button>
         </div>
         <div class="school-list" id="schoolList"></div>
       </div>
       <div class="row">
         <div class="form-group" style="flex: 1;">
           <label>학년</label>
-          <input type="number" id="gradeInput" class="form-control" placeholder="1">
+          <input type="number" id="gradeInput" class="form-control" placeholder="1" min="1" max="6">
         </div>
         <div class="form-group" style="flex: 1;">
           <label>반</label>
-          <input type="number" id="classInput" class="form-control" placeholder="1">
+          <input type="number" id="classInput" class="form-control" placeholder="1" min="1" max="30">
         </div>
       </div>
       <div class="modal-actions">
         <button class="modal-btn btn-cancel" onclick="closeModal()">취소</button>
-        <button class="modal-btn btn-save" onclick="saveSettings()">저장</button>
+        <button class="modal-btn btn-save" onclick="saveSettings()">저장하기</button>
       </div>
     </div>
   </div>
@@ -324,27 +243,29 @@
 <script>
   let mainTab = 'timetable';
   let selectedDayIdx = 0;
-  let isWeeklyView = window.innerWidth >= 768;
+  // PC 화면(가로 768px 이상)에서는 처음부터 5일 전체 표가 기본 활성화
+  let isGridView = window.innerWidth >= 768;
   let weekData = null;
   let mealCacheByDay = {};
 
   const dayNames = ['월', '화', '수', '목', '금'];
 
-  let userConfig = { schoolName: '', comciganCode: '', officeCode: '', schoolCode: '', grade: '', classNum: '' };
-  let tempSelectedSchool = null;
+  let userConfig = {
+    schoolName: '',
+    comciganCode: '',
+    officeCode: '',
+    schoolCode: '',
+    grade: '',
+    classNum: ''
+  };
 
-  /* --- 유틸리티 및 테마 --- */
-  function toggleTheme() {
-    document.body.classList.toggle('dark-theme');
-  }
+  let tempSelectedSchool = null;
 
   function getWeekDate(dayIdx) {
     const now = new Date();
     const currentDay = now.getDay();
-    let distanceToMonday = (currentDay === 0 ? -6 : 1) - currentDay;
-    if (currentDay === 0) distanceToMonday = 1; 
-    if (currentDay === 6) distanceToMonday = 2; 
-
+    const distanceToMonday = (currentDay === 0 ? -6 : 1) - currentDay;
+    
     const monday = new Date(now);
     monday.setDate(now.getDate() + distanceToMonday);
 
@@ -357,59 +278,47 @@
 
     return {
       ymd: `${y}${m}${d}`,
-      shortDate: `${target.getMonth() + 1}.${target.getDate()}`,
       display: `${target.getMonth() + 1}월 ${target.getDate()}일`,
+      fullDisplay: `${target.getFullYear()}년 ${target.getMonth() + 1}월 ${target.getDate()}일 (${dayNames[dayIdx]}요일)`
     };
   }
 
-  function initDatesAndToday() {
+  function initToday() {
     const today = new Date().getDay();
-    selectedDayIdx = (today >= 1 && today <= 5) ? today - 1 : 0;
-
-    for (let i = 0; i < 5; i++) {
-      document.getElementById(`dateTag${i}`).innerText = getWeekDate(i).shortDate;
+    if (today >= 1 && today <= 5) {
+      selectedDayIdx = today - 1;
+      const chips = document.querySelectorAll('.weekday-chip');
+      if (chips[selectedDayIdx]) chips[selectedDayIdx].classList.add('is-today');
+    } else {
+      selectedDayIdx = 0;
     }
-    const chips = document.querySelectorAll('.weekday-chip');
-    if (today >= 1 && today <= 5 && chips[today - 1]) chips[today - 1].classList.add('is-today');
   }
 
-  /* --- AI 식단 요약 생성 (클라이언트 기반 로직) --- */
-  function generateAISummary(dishes) {
-    const str = dishes.join(' ');
-    let keywords = [];
-    if (str.match(/고기|돼지|소|닭|불고기|제육|돈육|함박|스테이크/)) keywords.push("단백질이 풍부한 육류");
-    if (str.match(/튀김|돈까스|치킨|텐더|크로켓|카츠/)) keywords.push("바삭한 튀김 요리");
-    if (str.match(/국수|우동|면|스파게티|파스타|짬뽕|짜장/)) keywords.push("특식 느낌의 면 요리");
-    if (str.match(/국|탕|찌개/)) keywords.push("따뜻한 국물");
-    if (str.match(/빵|케이크|쿠키|마카롱|아이스크림|주스/)) keywords.push("달콤한 디저트");
-    if (str.match(/샐러드|채소|무침|나물/)) keywords.push("신선한 채소");
-
-    if (keywords.length > 0) {
-      return `오늘 식단은 <b>${keywords.slice(0, 2).join('와(과) ')}</b>이/가 포함되어 있어 맛과 영양을 모두 챙긴 든든한 구성입니다.`;
-    }
-    return "영양소가 골고루 갖춰진 균형 잡힌 건강한 식단입니다.";
-  }
-
-  /* --- 설정 데이터 로드 --- */
   async function loadInitialConfig() {
-    const saved = localStorage.getItem('com3home_school_config');
-    let localData = saved ? JSON.parse(saved) : {};
     const urlParams = new URLSearchParams(window.location.search);
-    
-    if (urlParams.get('sc') && urlParams.get('g') && urlParams.get('c')) {
-      userConfig.comciganCode = urlParams.get('sc');
-      userConfig.grade = urlParams.get('g');
-      userConfig.classNum = urlParams.get('c');
-      userConfig.schoolName = urlParams.get('name') || localData.schoolName || '학교';
-      userConfig.officeCode = urlParams.get('ofc') || localData.officeCode || '';
-      userConfig.schoolCode = urlParams.get('scCode') || localData.schoolCode || '';
+    const urlSc = urlParams.get('sc');
+    const urlGrade = urlParams.get('g');
+    const urlClass = urlParams.get('c');
+    const urlName = urlParams.get('name');
+
+    // 1) URL 파라미터가 있는 경우 (단톡방 공유 링크)
+    if ((urlSc || urlName) && urlGrade && urlClass) {
+      userConfig.comciganCode = urlSc || '';
+      userConfig.grade = urlGrade;
+      userConfig.classNum = urlClass;
+      userConfig.schoolName = urlName || '우리 학교';
       localStorage.setItem('com3home_school_config', JSON.stringify(userConfig));
-      updateHeaderUI(); loadTimetable(); return;
+      updateHeaderUI();
+      loadTimetable();
+      return;
     }
 
+    // 2) 로컬 스토리지에 저장된 값이 있는 경우
+    const saved = localStorage.getItem('com3home_school_config');
     if (saved) {
-      userConfig = localData;
-      updateHeaderUI(); loadTimetable();
+      userConfig = JSON.parse(saved);
+      updateHeaderUI();
+      loadTimetable();
     } else {
       openModal();
     }
@@ -422,170 +331,42 @@
     }
   }
 
-  function updateControlUI() {
-    const weekdayBar = document.getElementById('weekdayBar');
-    const toggleBtn = document.getElementById('toggleViewBtn');
-    const panelTitle = document.getElementById('panelTitle');
-    const dateInfo = getWeekDate(selectedDayIdx);
-
-    document.querySelectorAll('.weekday-chip').forEach((chip, idx) => {
-      chip.classList.toggle('active', idx === selectedDayIdx && (!isWeeklyView || mainTab === 'meal'));
-    });
-
-    if (mainTab === 'meal') {
-      weekdayBar.style.display = 'flex';
-      toggleBtn.style.display = 'none';
-      panelTitle.innerText = `${dateInfo.display} (${dayNames[selectedDayIdx]}) 급식`;
-    } else {
-      toggleBtn.style.display = 'block';
-      if (isWeeklyView) {
-        weekdayBar.style.display = 'none';
-        toggleBtn.innerText = '일간표 보기';
-        panelTitle.innerText = '주간 전체 시간표';
-      } else {
-        weekdayBar.style.display = 'flex';
-        toggleBtn.innerText = '전체 주간표 보기';
-        panelTitle.innerText = `${dateInfo.display} (${dayNames[selectedDayIdx]}) 시간표`;
-      }
-    }
+  function openModal() {
+    document.getElementById('modalOverlay').style.display = 'flex';
+    document.getElementById('gradeInput').value = userConfig.grade || '';
+    document.getElementById('classInput').value = userConfig.classNum || '';
   }
 
-  function switchMainTab(tab) {
-    mainTab = tab;
-    document.getElementById('tabTimetable').classList.toggle('active', tab === 'timetable');
-    document.getElementById('tabMeal').classList.toggle('active', tab === 'meal');
-    updateControlUI();
-    tab === 'timetable' ? renderTimetableUI() : loadMealByDay(selectedDayIdx);
+  function closeModal() {
+    document.getElementById('modalOverlay').style.display = 'none';
   }
 
-  function selectDay(dayIdx) {
-    selectedDayIdx = dayIdx;
-    if (mainTab === 'timetable') isWeeklyView = false;
-    updateControlUI();
-    mainTab === 'timetable' ? renderTimetableUI() : loadMealByDay(selectedDayIdx);
-  }
-
-  function toggleWeekGrid() {
-    if (mainTab !== 'timetable') return;
-    isWeeklyView = !isWeeklyView;
-    updateControlUI();
-    renderTimetableUI();
-  }
-
-  /* --- API 통신 및 렌더링 --- */
-  async function loadTimetable() {
-    if (!userConfig.comciganCode) return;
-    document.getElementById('contentBox').innerHTML = '<div class="state-msg">데이터 연동 중...</div>';
-    try {
-      const res = await fetch(`/api/timetable?comciganCode=${userConfig.comciganCode}&grade=${userConfig.grade}&classNum=${userConfig.classNum}`);
-      weekData = (await res.json()).data;
-      updateControlUI(); renderTimetableUI();
-    } catch { document.getElementById('contentBox').innerHTML = '<div class="state-msg">시간표 로드 실패</div>'; }
-  }
-
-  function renderTimetableUI() {
-    if (!weekData) return;
-    const box = document.getElementById('contentBox');
-
-    if (isWeeklyView) {
-      let html = `<div class="table-container"><table class="grid-table"><thead><tr>
-        <th style="width:35px;">교시</th>`;
-      for(let i=0; i<5; i++) html += `<th>${dayNames[i]} (${getWeekDate(i).shortDate})</th>`;
-      html += `</tr></thead><tbody>`;
-
-      for (let p = 1; p <= 7; p++) {
-        html += `<tr><td class="table-period-num">${p}</td>`;
-        for (let d = 0; d < 5; d++) {
-          const item = (weekData[d] && weekData[d][p - 1]) ? weekData[d][p - 1] : null;
-          if (item && item.subject !== '없음') {
-            const rawSub = String(item.subject).trim();
-            const subTitle = /^\d+$/.test(rawSub) ? `동아리(${rawSub})` : rawSub;
-            const tea = (item.teacher && item.teacher !== '없음') ? String(item.teacher).trim() : '';
-            html += `<td class="${item.changed ? 'cell-changed' : ''}"><div class="cell-sub">${subTitle}</div><div class="cell-tea">${tea}</div></td>`;
-          } else html += `<td><span style="opacity:0.3">-</span></td>`;
-        }
-        html += `</tr>`;
-      }
-      box.innerHTML = html + `</tbody></table></div>`;
-    } else {
-      const daySchedule = weekData[selectedDayIdx] || [];
-      if (daySchedule.length === 0) return box.innerHTML = '<div class="state-msg">일정이 없습니다.</div>';
-
-      let html = '<div class="period-list-grid">';
-      daySchedule.forEach(item => {
-        const rawSub = String(item.subject).trim();
-        const subTitle = /^\d+$/.test(rawSub) ? `동아리활동 (${rawSub})` : rawSub;
-        let tea = item.teacher || '';
-        if(tea === '선생님 미정' || tea === '없음') tea = '';
-        const origSub = item.originalSubject || '';
-
-        html += `
-          <div class="period-card ${item.changed ? 'changed' : ''}">
-            <div class="period-left">
-              <div class="period-num">${item.period}</div>
-              <div><div class="subject-title">${subTitle}</div><div class="teacher-title">${tea}</div></div>
-            </div>
-            ${item.changed ? `<div class="badge-changed">변경<br>${origSub ? `<span class="orig-sub">${origSub}</span>` : ''}</div>` : ''}
-          </div>`;
-      });
-      box.innerHTML = html + '</div>';
-    }
-  }
-
-  async function loadMealByDay(dayIdx) {
-    const box = document.getElementById('contentBox');
-    const dateInfo = getWeekDate(dayIdx);
-
-    if (!userConfig.officeCode || !userConfig.schoolCode) 
-      return box.innerHTML = `<div class="state-msg">나이스 코드가 없습니다. 설정에서 다시 지정해주세요.</div>`;
-    if (mealCacheByDay[dateInfo.ymd]) return renderMealCard(mealCacheByDay[dateInfo.ymd], dateInfo);
-
-    box.innerHTML = '<div class="state-msg">급식 정보 조회 중...</div>';
-    try {
-      const res = await fetch(`/api/meal?officeCode=${userConfig.officeCode}&schoolCode=${userConfig.schoolCode}&ymd=${dateInfo.ymd}`);
-      mealCacheByDay[dateInfo.ymd] = (await res.json()).data;
-      renderMealCard(mealCacheByDay[dateInfo.ymd], dateInfo);
-    } catch { box.innerHTML = '<div class="state-msg">급식 로드 실패</div>'; }
-  }
-
-  function renderMealCard(meal, dateInfo) {
-    const box = document.getElementById('contentBox');
-    if (!meal || !meal.dishes || meal.dishes.length === 0) 
-      return box.innerHTML = `<div class="meal-card"><div class="meal-header-box"><span class="meal-type-badge" style="background:transparent;border:1px solid;color:inherit">식단 없음</span><span class="meal-date-str">${dateInfo.display}</span></div><div class="state-msg" style="border:none;background:transparent;padding:10px 0;">급식 정보가 없습니다.</div></div>`;
-
-    let html = `<div class="meal-card"><div class="meal-header-box"><span class="meal-type-badge">중식</span><span class="meal-date-str">${dateInfo.display}</span></div><ul class="dish-list">`;
-    
-    // 메뉴 이름에서 불필요한 알레르기 숫자 제거 등 정리
-    const cleanDishes = meal.dishes.map(d => d.replace(/[\d\.\*\(\)]/g, '').trim());
-    
-    cleanDishes.forEach(dish => { html += `<li class="dish-item"><div class="dish-dot"></div>${dish}</li>`; });
-    html += `</ul>`;
-    
-    // AI 요약 박스 주입
-    html += `<div class="ai-summary-box"><div class="ai-summary-title">식단 분석 리포트</div><div class="ai-summary-text">${generateAISummary(cleanDishes)}</div></div>`;
-    
-    if (meal.calorie) html += `<div class="meal-calorie">총 에너지 : ${meal.calorie}</div>`;
-    box.innerHTML = html + `</div>`;
-  }
-
-  /* --- 설정 모달 로직 --- */
-  function openModal() { document.getElementById('modalOverlay').style.display = 'flex'; document.getElementById('gradeInput').value = userConfig.grade || ''; document.getElementById('classInput').value = userConfig.classNum || ''; }
-  function closeModal() { document.getElementById('modalOverlay').style.display = 'none'; }
-  
   async function searchSchool() {
     const query = document.getElementById('schoolInput').value;
     const listEl = document.getElementById('schoolList');
-    listEl.innerHTML = '<div style="padding: 10px; font-size: 12px; color:var(--text-sub);">검색 중...</div>';
+    listEl.innerHTML = '<div style="padding: 9px; font-size: 12px; color:#94A3B8;">검색 중...</div>';
     listEl.style.display = 'block';
+
     try {
       const res = await fetch(`/api/search-school?name=${encodeURIComponent(query)}`);
       const data = await res.json();
-      if (!data.list || data.list.length === 0) return listEl.innerHTML = '<div style="padding: 10px; font-size: 12px; color:var(--text-sub);">결과 없음</div>';
-      
+      if (!data.list || data.list.length === 0) {
+        listEl.innerHTML = '<div style="padding: 9px; font-size: 12px; color:#94A3B8;">검색 결과가 없습니다.</div>';
+        return;
+      }
       let html = '';
-      data.list.forEach((item, idx) => { html += `<div class="school-item" onclick="selectSchool(${idx})">${item.name}</div>`; });
-      listEl.innerHTML = html; window.searchResultList = data.list;
-    } catch { listEl.innerHTML = '<div style="padding: 10px; font-size: 12px; color:var(--warning-text);">오류 발생</div>'; }
+      data.list.forEach((item, idx) => {
+        html += `
+          <div class="school-item" onclick="selectSchool(${idx})">
+            <div>${item.name} (${item.region || '기타'})</div>
+          </div>
+        `;
+      });
+      listEl.innerHTML = html;
+      window.searchResultList = data.list;
+    } catch (e) {
+      listEl.innerHTML = '<div style="padding: 9px; font-size: 12px; color:#ef4444;">검색 실패</div>';
+    }
   }
 
   function selectSchool(idx) {
@@ -595,44 +376,268 @@
   }
 
   function saveSettings() {
-    const g = document.getElementById('gradeInput').value; const c = document.getElementById('classInput').value;
-    if (!tempSelectedSchool && !userConfig.comciganCode) return alert('학교를 검색해 선택하세요.');
-    if (!g || !c) return alert('학년/반을 입력하세요.');
+    const grade = document.getElementById('gradeInput').value;
+    const classNum = document.getElementById('classInput').value;
+
+    if (!tempSelectedSchool && !userConfig.schoolName) {
+      alert('학교를 검색해서 선택해주세요!');
+      return;
+    }
+    if (!grade || !classNum) {
+      alert('학년과 반을 입력해주세요!');
+      return;
+    }
 
     if (tempSelectedSchool) {
-      userConfig.schoolName = tempSelectedSchool.name; userConfig.comciganCode = tempSelectedSchool.comciganCode;
-      userConfig.officeCode = tempSelectedSchool.officeCode || tempSelectedSchool.atptOfcdcScCode || '';
-      userConfig.schoolCode = tempSelectedSchool.schoolCode || tempSelectedSchool.sdSchulCode || '';
+      userConfig.schoolName = tempSelectedSchool.name;
+      userConfig.comciganCode = tempSelectedSchool.comciganCode;
+      userConfig.officeCode = tempSelectedSchool.officeCode;
+      userConfig.schoolCode = tempSelectedSchool.schoolCode;
     }
-    userConfig.grade = g; userConfig.classNum = c;
+    userConfig.grade = grade;
+    userConfig.classNum = classNum;
+
+    // 브라우저 영구 저장
     localStorage.setItem('com3home_school_config', JSON.stringify(userConfig));
 
-    const newUrl = `${window.location.pathname}?sc=${userConfig.comciganCode}&g=${userConfig.grade}&c=${userConfig.classNum}&ofc=${userConfig.officeCode}&scCode=${userConfig.schoolCode}&name=${encodeURIComponent(userConfig.schoolName)}`;
+    // 주소창 URL 깔끔하게 동기화
+    const newUrl = `${window.location.pathname}?sc=${userConfig.comciganCode}&g=${userConfig.grade}&c=${userConfig.classNum}&name=${encodeURIComponent(userConfig.schoolName)}`;
     window.history.replaceState({}, '', newUrl);
 
-    updateHeaderUI(); closeModal(); mealCacheByDay = {};
-    mainTab === 'timetable' ? loadTimetable() : loadMealByDay(selectedDayIdx);
+    updateHeaderUI();
+    closeModal();
+    mealCacheByDay = {};
+    if (mainTab === 'timetable') loadTimetable();
+    else loadMealByDay(selectedDayIdx);
   }
 
   function shareClassLink() {
-    if (!userConfig.comciganCode) return alert('설정이 필요합니다.');
-    const url = `${window.location.origin}${window.location.pathname}?sc=${userConfig.comciganCode}&g=${userConfig.grade}&c=${userConfig.classNum}&ofc=${userConfig.officeCode}&scCode=${userConfig.schoolCode}&name=${encodeURIComponent(userConfig.schoolName)}`;
-    navigator.clipboard.writeText(url).then(() => alert('링크가 복사되었습니다.')).catch(() => prompt('공유 주소:', url));
+    if (!userConfig.schoolName) {
+      alert('먼저 학교와 반을 설정해주세요!');
+      return;
+    }
+    const shareUrl = `${window.location.origin}${window.location.pathname}?sc=${userConfig.comciganCode}&g=${userConfig.grade}&c=${userConfig.classNum}&name=${encodeURIComponent(userConfig.schoolName)}`;
+    
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      alert(`우리 반 시간표 링크가 복사되었습니다! 🎉\n단톡방에 붙여넣기 해보세요:\n${shareUrl}`);
+    }).catch(() => {
+      prompt('아래 링크를 복사해서 친구들에게 보내세요:', shareUrl);
+    });
   }
 
-  /* --- 이미지 저장 기능 (html2canvas) --- */
-  function exportAsImage() {
+  function switchMainTab(tab) {
+    mainTab = tab;
+    document.getElementById('tabTimetable').classList.toggle('active', tab === 'timetable');
+    document.getElementById('tabMeal').classList.toggle('active', tab === 'meal');
+    document.getElementById('toggleViewBtn').style.display = tab === 'timetable' ? 'block' : 'none';
+
+    if (tab === 'timetable') {
+      document.getElementById('weekdayBar').style.display = isGridView ? 'none' : 'flex';
+      renderTimetableUI();
+    } else {
+      document.getElementById('weekdayBar').style.display = 'flex';
+      loadMealByDay(selectedDayIdx);
+    }
+  }
+
+  function selectDay(dayIdx) {
+    selectedDayIdx = dayIdx;
+    isGridView = false;
+    document.getElementById('toggleViewBtn').innerText = '📅 전체 주간표';
+    document.getElementById('weekdayBar').style.display = 'flex';
+
+    if (mainTab === 'timetable') {
+      renderTimetableUI();
+    } else {
+      loadMealByDay(selectedDayIdx);
+    }
+  }
+
+  function toggleWeekGrid() {
+    isGridView = !isGridView;
+    document.getElementById('weekdayBar').style.display = isGridView ? 'none' : 'flex';
+    document.getElementById('toggleViewBtn').innerText = isGridView ? '📋 일간 카드' : '📅 전체 주간표';
+    renderTimetableUI();
+  }
+
+  // 💡 [시간표 조회] schoolName과 comciganCode를 모두 전송
+  async function loadTimetable() {
+    if (!userConfig.schoolName && !userConfig.comciganCode) return;
     const box = document.getElementById('contentBox');
-    // 테마 설정 등 렌더링 최적화를 위해 약간 지연
-    html2canvas(box, { backgroundColor: getComputedStyle(document.body).getPropertyValue('--bg').trim() }).then(canvas => {
-      const link = document.createElement('a');
-      link.download = `시간표_급식_${userConfig.grade}학년${userConfig.classNum}반.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    }).catch(() => alert('이미지 저장에 실패했습니다.'));
+    box.innerHTML = '<div class="empty">시간표를 불러오는 중...</div>';
+
+    try {
+      const url = `/api/timetable?schoolName=${encodeURIComponent(userConfig.schoolName)}&comciganCode=${userConfig.comciganCode}&grade=${userConfig.grade}&classNum=${userConfig.classNum}`;
+      const res = await fetch(url);
+      const json = await res.json();
+      weekData = json.data;
+      renderTimetableUI();
+    } catch (e) {
+      box.innerHTML = '<div class="empty">시간표를 불러오지 못했습니다.</div>';
+    }
   }
 
-  initDatesAndToday();
+  // 시간표 렌더링
+  function renderTimetableUI() {
+    if (!weekData) return;
+    const box = document.getElementById('contentBox');
+    const targetDateInfo = getWeekDate(selectedDayIdx);
+
+    const chips = document.querySelectorAll('.weekday-chip');
+    chips.forEach((c, idx) => {
+      c.classList.toggle('active', idx === selectedDayIdx && !isGridView);
+    });
+
+    if (isGridView) {
+      document.getElementById('viewTitle').innerText = '주간 전체 시간표';
+      let html = `
+        <table class="grid-table">
+          <thead>
+            <tr><th>교시</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th></tr>
+          </thead>
+          <tbody>
+      `;
+      for (let p = 1; p <= 7; p++) {
+        html += `<tr><td style="font-weight:700; color:#64748B;">${p}</td>`;
+        for (let d = 0; d < 5; d++) {
+          const item = (weekData[d] && weekData[d][p - 1]) ? weekData[d][p - 1] : null;
+          if (item && item.subject !== '없음') {
+            const rawSub = item.subject != null ? String(item.subject).trim() : '수업 없음';
+            const isNum = /^\d+$/.test(rawSub);
+            const subTitle = isNum ? `동아리(${rawSub})` : rawSub;
+            const teacherStr = item.teacher != null ? String(item.teacher).trim() : '';
+
+            html += `
+              <td class="${item.changed ? 'grid-changed' : ''}">
+                <div class="grid-subject">${subTitle}</div>
+                <div class="grid-teacher">${teacherStr}</div>
+              </td>
+            `;
+          } else {
+            html += `<td>-</td>`;
+          }
+        }
+        html += `</tr>`;
+      }
+      html += `</tbody></table>`;
+      box.innerHTML = html;
+    } else {
+      document.getElementById('viewTitle').innerText = `${targetDateInfo.display} (${dayNames[selectedDayIdx]}) 시간표`;
+      const daySchedule = weekData[selectedDayIdx] || [];
+
+      if (daySchedule.length === 0) {
+        box.innerHTML = '<div class="empty">등록된 시간표가 없습니다.</div>';
+        return;
+      }
+
+      let html = '<div class="period-list-grid">';
+      daySchedule.forEach(item => {
+        const rawSubject = item.subject != null ? String(item.subject).trim() : '수업 없음';
+        const isNumberOnly = /^\d+$/.test(rawSubject);
+        const displaySubject = isNumberOnly ? `동아리 (${rawSubject})` : rawSubject;
+
+        const teacherName = item.teacher != null ? String(item.teacher).trim() : '';
+        let teacherHtml = '';
+        if (teacherName && teacherName !== '선생님 미정' && teacherName !== '없음') {
+          teacherHtml = `<div class="teacher-badge">👨‍🏫 ${teacherName}</div>`;
+        } else if (isNumberOnly || displaySubject.includes('동아리') || displaySubject.includes('창체')) {
+          teacherHtml = `<div class="teacher-badge" style="color: #6366F1;">🏫 이동 / 동아리 활동</div>`;
+        }
+
+        const origSubject = item.originalSubject != null ? String(item.originalSubject).trim() : '';
+
+        html += `
+          <div class="period-card">
+            <div class="period-left">
+              <div class="period-badge">${item.period}교시</div>
+              <div class="subject-info">
+                <h3>${displaySubject}</h3>
+                ${teacherHtml}
+              </div>
+            </div>
+            ${item.changed ? `
+              <div class="changed-badge">
+                🔄 변경됨
+                ${origSubject ? `<div class="original-subject">원래: ${origSubject}</div>` : ''}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      });
+      html += '</div>';
+      box.innerHTML = html;
+    }
+  }
+
+  // 급식 조회
+  async function loadMealByDay(dayIdx) {
+    const box = document.getElementById('contentBox');
+    const targetDateInfo = getWeekDate(dayIdx);
+
+    document.getElementById('viewTitle').innerText = `${targetDateInfo.display} (${dayNames[dayIdx]}) 급식표`;
+
+    const chips = document.querySelectorAll('.weekday-chip');
+    chips.forEach((c, idx) => {
+      c.classList.toggle('active', idx === dayIdx);
+    });
+
+    if (mealCacheByDay[targetDateInfo.ymd]) {
+      renderMealCard(mealCacheByDay[targetDateInfo.ymd], targetDateInfo);
+      return;
+    }
+
+    box.innerHTML = '<div class="empty">급식 정보를 불러오는 중...</div>';
+
+    try {
+      const res = await fetch(`/api/meal?officeCode=${userConfig.officeCode}&schoolCode=${userConfig.schoolCode}&ymd=${targetDateInfo.ymd}`);
+      const json = await res.json();
+      const meal = json.data;
+      mealCacheByDay[targetDateInfo.ymd] = meal;
+      renderMealCard(meal, targetDateInfo);
+    } catch (e) {
+      box.innerHTML = '<div class="empty">급식을 불러오지 못했습니다.</div>';
+    }
+  }
+
+  function renderMealCard(meal, dateInfo) {
+    const box = document.getElementById('contentBox');
+
+    if (!meal || !meal.dishes || meal.dishes.length === 0) {
+      box.innerHTML = `
+        <div class="meal-card">
+          <div class="meal-header">
+            <span class="meal-tag" style="background:#F1F5F9; color:#64748B;">정보 없음</span>
+            <span class="meal-date-label">${dateInfo.display}</span>
+          </div>
+          <div class="empty" style="margin: 30px 0;">이 날은 급식이 없거나 메뉴가 등록되지 않았습니다. 🥪</div>
+        </div>
+      `;
+      return;
+    }
+
+    let html = `
+      <div class="meal-card">
+        <div class="meal-header">
+          <span class="meal-tag">중식 (점심)</span>
+          <span class="meal-date-label">${dateInfo.display} (${dayNames[selectedDayIdx]})</span>
+        </div>
+        <div class="dish-list">
+    `;
+
+    meal.dishes.forEach(dish => {
+      html += `<div class="dish-item">${dish}</div>`;
+    });
+
+    html += `</div>`;
+    if (meal.calorie) {
+      html += `<div class="calorie-info">총 열량: ${meal.calorie}</div>`;
+    }
+    html += `</div>`;
+
+    box.innerHTML = html;
+  }
+
+  initToday();
   loadInitialConfig();
 </script>
 
