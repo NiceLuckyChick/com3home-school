@@ -3,26 +3,49 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Com3home - 주간 시간표 & 급식</title>
+  <title>Com3home - 시간표 및 급식</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="/manifest.json">
+  <!-- 프리텐다드 웹폰트 -->
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
   
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Pretendard", -apple-system, sans-serif; }
-    body { background-color: #F1F4F9; display: flex; justify-content: center; min-height: 100vh; }
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; 
+    }
+    
+    body { 
+      background-color: #F1F4F9; 
+      color: #1E293B;
+      display: flex; 
+      justify-content: center; 
+      min-height: 100vh; 
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
     
     .app-container {
-      width: 100%; max-width: 460px; background: #FFFFFF; min-height: 100vh;
-      display: flex; flex-direction: column; box-shadow: 0 0 25px rgba(0,0,0,0.06); position: relative;
-      transition: max-width 0.3s ease;
+      width: 100%; 
+      max-width: 460px; 
+      background: #FFFFFF; 
+      min-height: 100vh;
+      display: flex; 
+      flex-direction: column; 
+      box-shadow: 0 0 25px rgba(0,0,0,0.06); 
+      position: relative;
+      transition: background-color 0.2s ease;
     }
 
     @media (min-width: 768px) {
       body { padding: 30px 20px; align-items: flex-start; }
       .app-container {
-        max-width: 1000px; min-height: auto; border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        max-width: 1000px; 
+        min-height: auto; 
+        border-radius: 20px; 
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
       }
       .period-list-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
       .period-card { margin-bottom: 0 !important; }
@@ -34,18 +57,26 @@
     }
 
     .header { padding: 22px 20px 14px; display: flex; justify-content: space-between; align-items: flex-end; }
-    .header-left h1 { font-size: 20px; font-weight: 800; color: #1E293B; }
+    .header-left h1 { font-size: 20px; font-weight: 800; color: inherit; }
     .header-left p { font-size: 13px; color: #64748B; font-weight: 600; margin-top: 3px; }
-    .header-right { display: flex; gap: 8px; align-items: center; }
+    .header-right { display: flex; gap: 6px; align-items: center; }
     
-    .icon-btn {
-      background: #F1F5F9; border: none; border-radius: 50%; width: 34px; height: 34px;
-      display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 15px;
+    .text-btn {
+      background: #F1F5F9; 
+      color: #334155; 
+      border: 1px solid #E2E8F0; 
+      border-radius: 8px; 
+      padding: 7px 11px;
+      font-size: 12px; 
+      font-weight: 700; 
+      cursor: pointer; 
+      transition: all 0.2s ease;
     }
+    .text-btn:hover { background: #E2E8F0; }
 
-    .tabs { display: flex; margin: 0 20px 12px; background: #E2E8F0; border-radius: 12px; padding: 4px; gap: 4px; }
+    .tabs { display: flex; margin: 0 20px 12px; background: #E2E8F0; border-radius: 10px; padding: 4px; gap: 4px; }
     .tab-btn {
-      flex: 1; border: none; padding: 10px; border-radius: 9px; background: none;
+      flex: 1; border: none; padding: 10px; border-radius: 8px; background: none;
       font-size: 14px; font-weight: 700; color: #64748B; cursor: pointer; transition: 0.2s;
     }
     .tab-btn.active { background: #FFFFFF; color: #4F46E5; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
@@ -65,70 +96,130 @@
 
     .view-toggle-bar { display: flex; justify-content: space-between; align-items: center; margin: 0 20px 14px; }
     .view-title { font-size: 14px; font-weight: 700; color: #334155; }
-    .toggle-btn { background: #EEF2FF; color: #4F46E5; border: none; border-radius: 10px; padding: 5px 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .toggle-btn { background: #EEF2FF; color: #4F46E5; border: none; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
 
     .content-area { flex: 1; padding: 0 20px 30px; }
 
-    .period-card { background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+    /* 일반 교시 카드 */
+    .period-card { 
+      background: #FFFFFF; 
+      border: 1px solid #E2E8F0; 
+      border-radius: 12px; 
+      padding: 14px 16px; 
+      margin-bottom: 10px; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      transition: all 0.2s;
+    }
     .period-left { display: flex; align-items: center; gap: 14px; }
     .period-badge { background: #EEF2F6; color: #475569; font-size: 12px; font-weight: 700; padding: 6px 10px; border-radius: 8px; min-width: 52px; text-align: center; }
-    .subject-info h3 { font-size: 16px; font-weight: 700; color: #1E293B; }
+    .subject-info h3 { font-size: 16px; font-weight: 700; color: inherit; }
     .teacher-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: #64748B; font-weight: 500; margin-top: 3px; }
+
+    /* 🟡 [시간표 변경] 일간 카드 강조 스타일 */
+    .period-card.is-changed {
+      border: 1.5px solid #F59E0B !important;
+      background-color: #FFFDF0 !important;
+    }
+    .changed-badge {
+      display: inline-block;
+      background: #FEF3C7;
+      color: #B45309;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 6px;
+      margin-left: 6px;
+      border: 1px solid #FDE68A;
+    }
     
-    .grid-table { width: 100%; border-collapse: collapse; background: #FFFFFF; border-radius: 14px; overflow: hidden; border: 1px solid #E2E8F0; }
+    /* 주간 전체 테이블 */
+    .grid-table { width: 100%; border-collapse: collapse; background: #FFFFFF; border-radius: 12px; overflow: hidden; border: 1px solid #E2E8F0; }
     .grid-table th { background: #F8FAFC; padding: 10px 4px; font-size: 13px; font-weight: 700; color: #475569; border-bottom: 1px solid #E2E8F0; }
     .grid-table td { padding: 10px 4px; border: 1px solid #F1F5F9; text-align: center; vertical-align: middle; }
-    .grid-subject { font-size: 13px; font-weight: 700; color: #1E293B; }
+    .grid-subject { font-size: 13px; font-weight: 700; color: inherit; }
+    .grid-teacher { font-size: 11px; color: #64748B; margin-top: 2px; }
+
+    /* 🟡 [시간표 변경] 주간 테이블 셀 강조 스타일 */
+    .grid-table td.grid-changed {
+      background-color: #FEF9C3 !important;
+      border: 1.5px solid #F59E0B !important;
+    }
+    .grid-changed-tag {
+      display: block;
+      font-size: 10px;
+      font-weight: 800;
+      color: #B45309;
+      margin-top: 2px;
+    }
     
-    .meal-card { background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 18px; padding: 22px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+    .meal-card { background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 22px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
     .meal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-    .meal-tag { background: #FEF3C7; color: #D97706; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 6px; }
+    .meal-tag { background: #EEF2F6; color: #475569; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 6px; }
     .meal-date-label { font-size: 13px; color: #64748B; font-weight: 600; }
     .dish-list { display: flex; flex-direction: column; gap: 10px; }
-    .dish-item { font-size: 15px; color: #1E293B; font-weight: 600; display: flex; align-items: center; }
-    .dish-item::before { content: ""; width: 6px; height: 6px; background-color: #4F46E5; border-radius: 50%; margin-right: 12px; }
+    .dish-item { font-size: 15px; color: inherit; font-weight: 600; display: flex; align-items: center; }
+    .dish-item::before { content: "-"; color: #4F46E5; font-weight: 900; margin-right: 10px; }
     .calorie-info { margin-top: 20px; padding-top: 14px; border-top: 1px dashed #E2E8F0; font-size: 12px; color: #94A3B8; text-align: right; font-weight: 500; }
 
     .empty { text-align: center; color: #94A3B8; margin-top: 60px; font-size: 14px; }
     .footer { text-align: center; padding: 15px; font-size: 11px; color: #94A3B8; border-top: 1px solid #F1F5F9; }
 
     .modal-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 100; }
-    .modal { background: #FFFFFF; width: 88%; max-width: 360px; border-radius: 20px; padding: 22px; }
-    .modal h2 { font-size: 18px; font-weight: 800; color: #1E293B; margin-bottom: 14px; }
+    .modal { background: #FFFFFF; width: 88%; max-width: 360px; border-radius: 16px; padding: 22px; }
+    .modal h2 { font-size: 17px; font-weight: 800; color: inherit; margin-bottom: 14px; }
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; font-size: 12px; font-weight: 700; color: #64748B; margin-bottom: 5px; }
-    .form-control { width: 100%; padding: 10px 12px; border: 1px solid #CBD5E1; border-radius: 10px; font-size: 14px; outline: none; }
+    .form-control { width: 100%; padding: 10px 12px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 14px; outline: none; }
     .search-box { display: flex; gap: 6px; }
-    .search-btn { background: #4F46E5; color: #fff; border: none; border-radius: 10px; padding: 0 14px; font-weight: 700; cursor: pointer; }
-    .school-list { max-height: 120px; overflow-y: auto; border: 1px solid #E2E8F0; border-radius: 10px; margin-top: 6px; display: none; }
+    .search-btn { background: #4F46E5; color: #fff; border: none; border-radius: 8px; padding: 0 14px; font-weight: 700; cursor: pointer; }
+    .school-list { max-height: 120px; overflow-y: auto; border: 1px solid #E2E8F0; border-radius: 8px; margin-top: 6px; display: none; }
     .school-item { padding: 9px; font-size: 13px; border-bottom: 1px solid #F1F5F9; cursor: pointer; }
     .school-item:hover { background: #EEF2FF; color: #4F46E5; font-weight: 700; }
     .row { display: flex; gap: 10px; }
     .modal-actions { display: flex; gap: 8px; margin-top: 18px; }
-    .modal-btn { flex: 1; padding: 11px; border-radius: 10px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .modal-btn { flex: 1; padding: 11px; border-radius: 8px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; }
     .btn-save { background: #4F46E5; color: #fff; }
     .btn-cancel { background: #F1F5F9; color: #64748B; }
 
-    /* 🌙 다크모드 자동 적용 CSS 추가됨 */
-    @media (prefers-color-scheme: dark) {
-      body { background-color: #0F172A; }
-      .app-container { background: #1E293B; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
-      .header-left h1, .subject-info h3, .grid-subject, .dish-item, .modal h2 { color: #F8FAFC; }
-      .header-left p, .meal-date-label { color: #94A3B8; }
-      .icon-btn, .view-toggle-bar .toggle-btn, .modal-btn.btn-cancel, .tab-btn, .weekday-chip { background: #334155; color: #CBD5E1; }
-      .tab-btn.active { background: #4F46E5; color: #FFFFFF; }
-      .weekday-chip { border-color: #475569; background: #1E293B; }
-      .weekday-chip.active { background: #4F46E5; border-color: #4F46E5; color: #FFF; box-shadow: 0 3px 8px rgba(0,0,0,0.4); }
-      .view-title { color: #F1F5F9; }
-      .period-card, .grid-table, .meal-card, .modal, .school-list { background: #1E293B; border-color: #334155; }
-      .grid-table th { background: #334155; color: #CBD5E1; border-color: #475569; }
-      .grid-table td { border-color: #334155; }
-      .period-badge, .meal-tag { background: #334155; color: #CBD5E1; }
-      .empty, .footer, .teacher-badge { color: #94A3B8; }
-      .form-control { background: #0F172A; color: #F8FAFC; border-color: #475569; }
-      .school-item { border-color: #334155; color: #CBD5E1; }
-      .school-item:hover { background: #475569; color: #FFF; }
-      .modal-overlay { background: rgba(0,0,0,0.7); }
+    /* =========================================
+       🌙 수동 다크모드 전용 스타일 (.dark 클래스)
+       ========================================= */
+    body.dark { background-color: #0F172A; color: #F8FAFC; }
+    body.dark .app-container { background: #1E293B; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+    body.dark .header-left p, body.dark .meal-date-label, body.dark .empty, body.dark .footer { color: #94A3B8; }
+    body.dark .text-btn, body.dark .toggle-btn, body.dark .modal-btn.btn-cancel, body.dark .tab-btn { background: #334155; color: #CBD5E1; border-color: #475569; }
+    body.dark .tab-btn.active { background: #4F46E5; color: #FFFFFF; }
+    body.dark .weekday-chip { border-color: #475569; background: #1E293B; color: #94A3B8; }
+    body.dark .weekday-chip.active { background: #4F46E5; border-color: #4F46E5; color: #FFF; }
+    body.dark .view-title { color: #F1F5F9; }
+    body.dark .period-card, body.dark .grid-table, body.dark .meal-card, body.dark .modal, body.dark .school-list { background: #1E293B; border-color: #334155; }
+    body.dark .grid-table th { background: #334155; color: #CBD5E1; border-color: #475569; }
+    body.dark .grid-table td { border-color: #334155; }
+    body.dark .period-badge, body.dark .meal-tag { background: #334155; color: #CBD5E1; }
+    body.dark .form-control { background: #0F172A; color: #F8FAFC; border-color: #475569; }
+    body.dark .school-item { border-color: #334155; color: #CBD5E1; }
+    body.dark .school-item:hover { background: #334155; color: #FFF; }
+    body.dark .modal-overlay { background: rgba(0,0,0,0.7); }
+    body.dark .footer { border-color: #334155; }
+
+    /* 다크모드에서의 변경된 시간표 강조 */
+    body.dark .period-card.is-changed {
+      background-color: #29200D !important;
+      border-color: #D97706 !important;
+    }
+    body.dark .changed-badge {
+      background: #78350F;
+      color: #FDE68A;
+      border-color: #B45309;
+    }
+    body.dark .grid-table td.grid-changed {
+      background-color: #29200D !important;
+      border-color: #D97706 !important;
+    }
+    body.dark .grid-changed-tag {
+      color: #FDE68A;
     }
   </style>
 </head>
@@ -141,14 +232,15 @@
       <p id="classDisplay">- 학년 - 반</p>
     </div>
     <div class="header-right">
-      <button class="icon-btn" onclick="shareClassLink()" title="우리 반 링크 복사">🔗</button>
-      <button class="icon-btn" onclick="openModal()" title="설정">⚙️</button>
+      <button class="text-btn" id="themeToggleBtn" onclick="toggleTheme()">다크모드</button>
+      <button class="text-btn" onclick="shareClassLink()">링크 복사</button>
+      <button class="text-btn" onclick="openModal()">설정</button>
     </div>
   </div>
 
   <div class="tabs">
-    <button class="tab-btn active" id="tabTimetable" onclick="switchMainTab('timetable')">⏰ 시간표</button>
-    <button class="tab-btn" id="tabMeal" onclick="switchMainTab('meal')">🍱 급식표</button>
+    <button class="tab-btn active" id="tabTimetable" onclick="switchMainTab('timetable')">시간표</button>
+    <button class="tab-btn" id="tabMeal" onclick="switchMainTab('meal')">급식표</button>
   </div>
 
   <div class="weekday-bar" id="weekdayBar">
@@ -161,23 +253,23 @@
 
   <div class="view-toggle-bar">
     <span class="view-title" id="viewTitle">월요일 시간표</span>
-    <button class="toggle-btn" id="toggleViewBtn" onclick="toggleWeekGrid()">📅 전체 주간표</button>
+    <button class="toggle-btn" id="toggleViewBtn" onclick="toggleWeekGrid()">주간 전체</button>
   </div>
 
   <div class="content-area">
     <div id="contentBox">
-      <div class="empty">설정(⚙️)에서 학교와 반을 먼저 지정해주세요!</div>
+      <div class="empty">설정에서 학교와 반을 먼저 지정해주세요.</div>
     </div>
   </div>
 
   <div class="footer">
-    Com3home Team Project • 컴시간 실시간 & 나이스 급식
+    Com3home Team Project • 컴시간 실시간 & 나이스 급식 연동
   </div>
 
   <!-- 설정 모달 -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
-      <h2>🏫 학교 및 학급 설정</h2>
+      <h2>학교 및 학급 설정</h2>
       <div class="form-group">
         <label>학교 검색</label>
         <div class="search-box">
@@ -223,6 +315,28 @@
   };
   let tempSelectedSchool = null;
 
+  // 🌙 [다크모드 설정 기능]
+  function initTheme() {
+    const savedTheme = localStorage.getItem('com3home_theme') || 'light';
+    applyTheme(savedTheme === 'dark');
+  }
+
+  function applyTheme(isDark) {
+    if (isDark) {
+      document.body.classList.add('dark');
+      document.getElementById('themeToggleBtn').innerText = '라이트모드';
+    } else {
+      document.body.classList.remove('dark');
+      document.getElementById('themeToggleBtn').innerText = '다크모드';
+    }
+    localStorage.setItem('com3home_theme', isDark ? 'dark' : 'light');
+  }
+
+  function toggleTheme() {
+    const isCurrentlyDark = document.body.classList.contains('dark');
+    applyTheme(!isCurrentlyDark);
+  }
+
   function getWeekDate(dayIdx) {
     const now = new Date();
     const currentDay = now.getDay();
@@ -265,6 +379,8 @@
       userConfig.grade = urlGrade;
       userConfig.classNum = urlClass;
       userConfig.schoolName = urlParams.get('name') || '우리 학교';
+      userConfig.officeCode = urlParams.get('of') || '';
+      userConfig.schoolCode = urlParams.get('sd') || '';
       localStorage.setItem('com3home_school_config', JSON.stringify(userConfig));
       updateHeaderUI();
       loadTimetable();
@@ -336,11 +452,11 @@
     const classNum = document.getElementById('classInput').value;
 
     if (!tempSelectedSchool && !userConfig.comciganCode) {
-      alert('학교를 검색해서 선택해주세요!');
+      alert('학교를 검색해서 선택해주세요.');
       return;
     }
     if (!grade || !classNum) {
-      alert('학년과 반을 입력해주세요!');
+      alert('학년과 반을 입력해주세요.');
       return;
     }
 
@@ -354,7 +470,7 @@
     userConfig.classNum = classNum;
 
     localStorage.setItem('com3home_school_config', JSON.stringify(userConfig));
-    const newUrl = `${window.location.pathname}?sc=${userConfig.comciganCode}&g=${userConfig.grade}&c=${userConfig.classNum}&name=${encodeURIComponent(userConfig.schoolName)}`;
+    const newUrl = `${window.location.pathname}?sc=${userConfig.comciganCode}&g=${userConfig.grade}&c=${userConfig.classNum}&name=${encodeURIComponent(userConfig.schoolName)}&of=${userConfig.officeCode}&sd=${userConfig.schoolCode}`;
     window.history.replaceState({}, '', newUrl);
 
     updateHeaderUI();
@@ -366,14 +482,14 @@
 
   function shareClassLink() {
     if (!userConfig.comciganCode) {
-      alert('먼저 학교와 반을 설정해주세요!');
+      alert('먼저 학교와 반을 설정해주세요.');
       return;
     }
-    const shareUrl = `${window.location.origin}${window.location.pathname}?sc=${userConfig.comciganCode}&g=${userConfig.grade}&c=${userConfig.classNum}&name=${encodeURIComponent(userConfig.schoolName)}`;
+    const shareUrl = `${window.location.origin}${window.location.pathname}?sc=${userConfig.comciganCode}&g=${userConfig.grade}&c=${userConfig.classNum}&name=${encodeURIComponent(userConfig.schoolName)}&of=${userConfig.officeCode}&sd=${userConfig.schoolCode}`;
     navigator.clipboard.writeText(shareUrl).then(() => {
-      alert(`우리 반 시간표 링크가 복사되었습니다! 🎉\n단톡방에 붙여넣기 해보세요:\n${shareUrl}`);
+      alert('우리 반 링크가 복사되었습니다. 친구들에게 전달해보세요.\n' + shareUrl);
     }).catch(() => {
-      prompt('아래 링크를 복사해서 친구들에게 보내세요:', shareUrl);
+      prompt('아래 링크를 복사하세요:', shareUrl);
     });
   }
 
@@ -395,7 +511,7 @@
   function selectDay(dayIdx) {
     selectedDayIdx = dayIdx;
     isGridView = false;
-    document.getElementById('toggleViewBtn').innerText = '📅 전체 주간표';
+    document.getElementById('toggleViewBtn').innerText = '주간 전체';
     document.getElementById('weekdayBar').style.display = 'flex';
     if (mainTab === 'timetable') renderTimetableUI();
     else loadMealByDay(selectedDayIdx);
@@ -404,14 +520,14 @@
   function toggleWeekGrid() {
     isGridView = !isGridView;
     document.getElementById('weekdayBar').style.display = isGridView ? 'none' : 'flex';
-    document.getElementById('toggleViewBtn').innerText = isGridView ? '📋 일간 카드' : '📅 전체 주간표';
+    document.getElementById('toggleViewBtn').innerText = isGridView ? '일간 보기' : '주간 전체';
     renderTimetableUI();
   }
 
   async function loadTimetable() {
     if (!userConfig.comciganCode && !userConfig.schoolName) return;
     const box = document.getElementById('contentBox');
-    box.innerHTML = '<div class="empty">시간표를 불러오는 중...</div>';
+    box.innerHTML = '<div class="empty">시간표를 불러오는 중입니다...</div>';
 
     try {
       const url = `/api/timetable?schoolName=${encodeURIComponent(userConfig.schoolName)}&comciganCode=${userConfig.comciganCode}&grade=${userConfig.grade}&classNum=${userConfig.classNum}`;
@@ -456,9 +572,17 @@
             const isNum = /^\d+$/.test(rawSub);
             const subTitle = isNum ? `동아리(${rawSub})` : rawSub;
             
+            // 🟡 [시간표 변경] 주간 테이블 셀 노란색 강조
+            const isChanged = item.changed === true;
+            const changedClass = isChanged ? 'grid-changed' : '';
+            const changedTag = isChanged ? '<span class="grid-changed-tag">[변경]</span>' : '';
+            const teacherText = item.teacher ? `<div class="grid-teacher">${item.teacher}</div>` : '';
+            
             html += `
-              <td class="${item.changed ? 'grid-changed' : ''}">
+              <td class="${changedClass}">
                 <div class="grid-subject">${subTitle}</div>
+                ${teacherText}
+                ${changedTag}
               </td>
             `;
           } else {
@@ -484,17 +608,24 @@
         const isNumberOnly = /^\d+$/.test(rawSubject);
         const displaySubject = isNumberOnly ? `동아리 (${rawSubject})` : rawSubject;
 
+        // 🟡 [시간표 변경] 일간 카드 노란색 테두리 및 [변경] 태그
+        const isChanged = item.changed === true;
+        const changedCardClass = isChanged ? 'is-changed' : '';
+        const changedBadge = isChanged ? '<span class="changed-badge">[변경]</span>' : '';
+
         let teacherHtml = '';
-        if (isNumberOnly || displaySubject.includes('동아리') || displaySubject.includes('창체')) {
-          teacherHtml = `<div class="teacher-badge" style="color: #6366F1;">🏫 이동 / 동아리 활동</div>`;
+        if (item.teacher) {
+          teacherHtml = `<div class="teacher-badge">${item.teacher} 선생님</div>`;
+        } else if (isNumberOnly || displaySubject.includes('동아리') || displaySubject.includes('창체')) {
+          teacherHtml = `<div class="teacher-badge" style="color: #6366F1;">이동 및 동아리 활동</div>`;
         }
 
         html += `
-          <div class="period-card">
+          <div class="period-card ${changedCardClass}">
             <div class="period-left">
               <div class="period-badge">${item.period}교시</div>
               <div class="subject-info">
-                <h3>${displaySubject}</h3>
+                <h3>${displaySubject} ${changedBadge}</h3>
                 ${teacherHtml}
               </div>
             </div>
@@ -506,6 +637,7 @@
     }
   }
 
+  // 나이스(NEIS) 급식 로드 (학교명 자동 포함)
   async function loadMealByDay(dayIdx) {
     const box = document.getElementById('contentBox');
     const targetDateInfo = getWeekDate(dayIdx);
@@ -522,16 +654,17 @@
       return;
     }
 
-    box.innerHTML = '<div class="empty">급식 정보를 불러오는 중...</div>';
+    box.innerHTML = '<div class="empty">나이스 급식 정보를 불러오는 중입니다...</div>';
 
     try {
-      const res = await fetch(`/api/meal?officeCode=${userConfig.officeCode}&schoolCode=${userConfig.schoolCode}&ymd=${targetDateInfo.ymd}`);
+      const url = `/api/meal?officeCode=${userConfig.officeCode}&schoolCode=${userConfig.schoolCode}&schoolName=${encodeURIComponent(userConfig.schoolName)}&ymd=${targetDateInfo.ymd}`;
+      const res = await fetch(url);
       const json = await res.json();
       const meal = json.data;
       mealCacheByDay[targetDateInfo.ymd] = meal;
       renderMealCard(meal, targetDateInfo);
     } catch (e) {
-      box.innerHTML = '<div class="empty">급식을 불러오지 못했습니다.</div>';
+      box.innerHTML = '<div class="empty">급식 정보를 불러오지 못했습니다.</div>';
     }
   }
 
@@ -541,10 +674,10 @@
       box.innerHTML = `
         <div class="meal-card">
           <div class="meal-header">
-            <span class="meal-tag" style="background:#F1F5F9; color:#64748B;">정보 없음</span>
+            <span class="meal-tag">알림</span>
             <span class="meal-date-label">${dateInfo.display}</span>
           </div>
-          <div class="empty" style="margin: 30px 0;">이 날은 급식이 없거나 메뉴가 등록되지 않았습니다. 🥪</div>
+          <div class="empty" style="margin: 30px 0;">급식 정보가 없거나 등록되지 않은 날입니다.</div>
         </div>
       `;
       return;
@@ -553,7 +686,7 @@
     let html = `
       <div class="meal-card">
         <div class="meal-header">
-          <span class="meal-tag">중식 (점심)</span>
+          <span class="meal-tag">점심 (중식)</span>
           <span class="meal-date-label">${dateInfo.display} (${dayNames[selectedDayIdx]})</span>
         </div>
         <div class="dish-list">
@@ -567,6 +700,7 @@
     box.innerHTML = html;
   }
 
+  initTheme();
   initToday();
   loadInitialConfig();
 </script>
