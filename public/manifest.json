@@ -1,5 +1,5 @@
 {
-  "name": "Com3home 시간표 & 급식",
+  "name": "Com3School",
   "short_name": "시간표",
   "start_url": "/",
   "display": "standalone",
@@ -7,7 +7,7 @@
   "theme_color": "#4F46E5",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/2997/2997295.png",
+      "src": "https://com3home.com/projects/ComSchool-Ver.2/logo.png?v=2",
       "sizes": "512x512",
       "type": "image/png"
     }
