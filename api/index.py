@@ -19,12 +19,12 @@ def search_school(name: str = Query(..., min_length=2)):
         schools = get_school_code(name.strip())
         comcigan_list = []
         
-        # Docs: [지역코드(0), 지역명(1), 학교명(2), 학교코드(3)]
+        # pycomcigan 1.4.3: [지역코드(0), 지역명(1), 학교명(2), 학교코드(3)]
         for s in schools:
             comcigan_list.append({
                 "region": str(s[1]),      # 지역명
                 "name": str(s[2]),        # 학교명
-                "comciganCode": str(s[3]) # 학교코드
+                "comciganCode": str(s[3]) # 컴시간 학교코드
             })
 
         # 나이스(NEIS) 학교 및 교육청 코드 검색
@@ -77,13 +77,12 @@ def get_timetable(
         class_schedule = tt.timetable[grade][classNum]
 
         week_data = []
-        # 💡 [핵심] 최신버전 요일 매핑 (1=월요일 ~ 5=금요일)
+        # 요일 매핑 (1=월요일 ~ 5=금요일)
         for day in range(1, 6):
             day_list = []
             try:
                 day_periods = class_schedule[day] # List[TimeTableData]
                 for item in day_periods:
-                    # 💡 [핵심] TimeTableData 객체에서 속성 뽑아내기!
                     sub_text = item.subject.strip() if getattr(item, 'subject', None) else "수업 없음"
                     teacher_text = item.teacher.strip() if getattr(item, 'teacher', None) else ""
                     is_changed = getattr(item, 'replaced', False)
@@ -96,7 +95,7 @@ def get_timetable(
                         "changed": is_changed
                     })
             except (KeyError, IndexError):
-                pass # 특정 요일에 데이터가 없으면 통과
+                pass
                 
             week_data.append(day_list)
 
@@ -105,9 +104,31 @@ def get_timetable(
         return {"error": str(e), "data": []}
 
 @app.get("/api/meal")
-def get_meal(officeCode: str = Query(""), schoolCode: str = Query(""), ymd: str = Query("")):
-    if not officeCode or not schoolCode or not ymd:
+def get_meal(
+    officeCode: str = Query(""),
+    schoolCode: str = Query(""),
+    schoolName: str = Query(""),
+    ymd: str = Query("")
+):
+    if not ymd:
         return {"data": {"dishes": [], "calorie": ""}}
+
+    # 교육청/학교 코드가 비어있다면 학교명으로 나이스 API 직접 재검색
+    if (not officeCode or not schoolCode) and schoolName:
+        try:
+            s_url = f"https://open.neis.go.kr/hub/schoolInfo?Type=json&SCHUL_NM={schoolName.strip()}"
+            s_res = requests.get(s_url, timeout=5).json()
+            if "schoolInfo" in s_res:
+                row = s_res["schoolInfo"][1]["row"][0]
+                officeCode = row["ATPT_OFCDC_SC_CODE"]
+                schoolCode = row["SD_SCHUL_CODE"]
+        except Exception:
+            pass
+
+    if not officeCode or not schoolCode:
+        return {"data": {"dishes": [], "calorie": ""}}
+
+    # 나이스 공식 급식 정보 API 호출
     try:
         url = f"https://open.neis.go.kr/hub/mealServiceDietInfo?Type=json&ATPT_OFCDC_SC_CODE={officeCode}&SD_SCHUL_CODE={schoolCode}&MLSV_YMD={ymd}"
         res = requests.get(url, timeout=5).json()
@@ -115,6 +136,7 @@ def get_meal(officeCode: str = Query(""), schoolCode: str = Query(""), ymd: str 
         if "mealServiceDietInfo" in res:
             row = res["mealServiceDietInfo"][1]["row"][0]
             raw_dish = row.get("DDISH_NM", "")
+            # 알레르기 번호 및 태그 제거
             cleaned_dishes = [d.strip() for d in re.sub(r"[0-9*.<br/>\(\)]", "", raw_dish).split() if d.strip()]
             return {
                 "source": "live",
