@@ -19,13 +19,12 @@ def search_school(name: str = Query(..., min_length=2)):
         schools = get_school_code(name.strip())
         comcigan_list = []
         
-        # 💡 [핵심 수정] 실제 pycomcigan 1.4.3 응답 순서에 맞게 정확히 매핑!
-        # 응답 구조: [지역코드(0), 지역명(1), 학교명(2), 학교코드(3)]
+        # Docs: [지역코드(0), 지역명(1), 학교명(2), 학교코드(3)]
         for s in schools:
             comcigan_list.append({
-                "region": str(s[1]),      # 지역명 (예: 경기)
-                "name": str(s[2]),        # 학교명 (예: XX고등학교)
-                "comciganCode": str(s[3]) # 컴시간 학교코드
+                "region": str(s[1]),      # 지역명
+                "name": str(s[2]),        # 학교명
+                "comciganCode": str(s[3]) # 학교코드
             })
 
         # 나이스(NEIS) 학교 및 교육청 코드 검색
@@ -42,7 +41,6 @@ def search_school(name: str = Query(..., min_length=2)):
         except Exception:
             pass
 
-        # 💡 [급식 오류 수정] 컴시간 학교명과 나이스 학교명이 미세하게 달라도 매칭되게 처리
         result_list = []
         for s in comcigan_list:
             matched_neis = {}
@@ -79,16 +77,27 @@ def get_timetable(
         class_schedule = tt.timetable[grade][classNum]
 
         week_data = []
-        for day_periods in class_schedule:
+        # 💡 [핵심] 최신버전 요일 매핑 (1=월요일 ~ 5=금요일)
+        for day in range(1, 6):
             day_list = []
-            for p_idx, subject in enumerate(day_periods):
-                sub_text = subject.strip() if subject else "수업 없음"
-                day_list.append({
-                    "period": p_idx + 1,
-                    "subject": sub_text,
-                    "teacher": "",
-                    "changed": False
-                })
+            try:
+                day_periods = class_schedule[day] # List[TimeTableData]
+                for item in day_periods:
+                    # 💡 [핵심] TimeTableData 객체에서 속성 뽑아내기!
+                    sub_text = item.subject.strip() if getattr(item, 'subject', None) else "수업 없음"
+                    teacher_text = item.teacher.strip() if getattr(item, 'teacher', None) else ""
+                    is_changed = getattr(item, 'replaced', False)
+                    period_num = getattr(item, 'period', 0)
+
+                    day_list.append({
+                        "period": period_num,
+                        "subject": sub_text,
+                        "teacher": teacher_text,
+                        "changed": is_changed
+                    })
+            except (KeyError, IndexError):
+                pass # 특정 요일에 데이터가 없으면 통과
+                
             week_data.append(day_list)
 
         return {"source": "live", "data": week_data}
