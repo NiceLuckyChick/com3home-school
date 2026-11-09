@@ -101,7 +101,6 @@
 
     .content-area { flex: 1; padding: 0 20px 30px; }
 
-    /* 일반 교시 카드 */
     .period-card { 
       background: #FFFFFF; 
       border: 1px solid #E2E8F0; 
@@ -119,7 +118,6 @@
     .subject-info h3 { font-size: 16px; font-weight: 700; color: inherit; display: flex; align-items: center; gap: 6px; }
     .teacher-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: #64748B; font-weight: 500; margin-top: 4px; }
 
-    /* 🟡 [시간표 변경] 일간 카드 강조 & 변경 전 정보 */
     .period-card.is-changed {
       border: 1.5px solid #F59E0B !important;
       background-color: #FFFDF0 !important;
@@ -140,14 +138,12 @@
       margin-top: 3px;
     }
     
-    /* 주간 전체 테이블 */
     .grid-table { width: 100%; border-collapse: collapse; background: #FFFFFF; border-radius: 12px; overflow: hidden; border: 1px solid #E2E8F0; }
     .grid-table th { background: #F8FAFC; padding: 10px 4px; font-size: 13px; font-weight: 700; color: #475569; border-bottom: 1px solid #E2E8F0; }
     .grid-table td { padding: 10px 4px; border: 1px solid #F1F5F9; text-align: center; vertical-align: middle; }
     .grid-subject { font-size: 13px; font-weight: 700; color: inherit; }
     .grid-teacher { font-size: 11px; color: #64748B; margin-top: 2px; }
 
-    /* 🟡 [시간표 변경] 주간 테이블 셀 강조 */
     .grid-table td.grid-changed {
       background-color: #FEF9C3 !important;
       border: 1.5px solid #F59E0B !important;
@@ -165,13 +161,11 @@
       margin-top: 2px;
     }
     
-    /* 급식 카드 */
     .meal-card { background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 22px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
     .meal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .meal-tag { background: #EEF2F6; color: #475569; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 6px; }
     .meal-date-label { font-size: 13px; color: #64748B; font-weight: 600; }
     
-    /* 🤖 AI 급식 요약 카드 */
     .ai-summary-box {
       background: #F8FAFC;
       border: 1px solid #E2E8F0;
@@ -231,14 +225,10 @@
     .btn-save { background: #4F46E5; color: #fff; }
     .btn-cancel { background: #F1F5F9; color: #64748B; }
 
-    /* =========================================
-       🌙 다크모드 완벽 대응 스타일 (버그 전면 수정)
-       ========================================= */
     body.dark { background-color: #0F172A; color: #F8FAFC; }
     body.dark .app-container { background: #1E293B; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
     body.dark .header-left p, body.dark .meal-date-label, body.dark .empty, body.dark .footer { color: #94A3B8; }
     
-    /* 버튼 다크모드 버그 해결: 명확한 배경색 & 호버 색상 */
     body.dark .text-btn { background: #334155; color: #E2E8F0; border-color: #475569; }
     body.dark .text-btn:hover { background: #475569; color: #FFFFFF; }
     
@@ -265,7 +255,6 @@
     body.dark .modal-btn.btn-cancel:hover { background: #475569; }
     body.dark .footer { border-color: #334155; }
 
-    /* 다크모드 시간표 변경 강조 */
     body.dark .period-card.is-changed {
       background-color: #261E0E !important;
       border-color: #D97706 !important;
@@ -286,7 +275,6 @@
       color: #FDE68A;
     }
 
-    /* 다크모드 AI 요약 카드 */
     body.dark .ai-summary-box {
       background: #0F172A;
       border-color: #334155;
@@ -350,7 +338,7 @@
       <div class="form-group">
         <label>학교 검색</label>
         <div class="search-box">
-          <input type="text" id="schoolInput" class="form-control" placeholder="예: 서울고">
+          <input type="text" id="schoolInput" class="form-control" placeholder="예: 신정고">
           <button class="search-btn" onclick="searchSchool()">검색</button>
         </div>
         <div class="school-list" id="schoolList"></div>
@@ -385,6 +373,7 @@
   let userConfig = {
     schoolName: '',
     comciganCode: '',
+    localCode: '',
     officeCode: '',
     schoolCode: '',
     grade: '',
@@ -392,7 +381,6 @@
   };
   let tempSelectedSchool = null;
 
-  // 🌙 [다크모드 설정]
   function initTheme() {
     const savedTheme = localStorage.getItem('com3home_theme') || 'light';
     applyTheme(savedTheme === 'dark');
@@ -453,6 +441,7 @@
 
     if (urlSc && urlGrade && urlClass) {
       userConfig.comciganCode = urlSc;
+      userConfig.localCode = urlParams.get('loc') || '';
       userConfig.grade = urlGrade;
       userConfig.classNum = urlClass;
       userConfig.schoolName = urlParams.get('name') || '우리 학교';
@@ -520,7 +509,7 @@
 
   function selectSchool(idx) {
     tempSelectedSchool = window.searchResultList[idx];
-    document.getElementById('schoolInput').value = tempSelectedSchool.name;
+    document.getElementById('schoolInput').value = `${tempSelectedSchool.name} (${tempSelectedSchool.region})`;
     document.getElementById('schoolList').style.display = 'none';
   }
 
@@ -540,6 +529,7 @@
     if (tempSelectedSchool) {
       userConfig.schoolName = tempSelectedSchool.name;
       userConfig.comciganCode = tempSelectedSchool.comciganCode;
+      userConfig.localCode = tempSelectedSchool.localCode || '';
       userConfig.officeCode = tempSelectedSchool.officeCode;
       userConfig.schoolCode = tempSelectedSchool.schoolCode;
     }
@@ -547,7 +537,7 @@
     userConfig.classNum = classNum;
 
     localStorage.setItem('com3home_school_config', JSON.stringify(userConfig));
-    const newUrl = `${window.location.pathname}?sc=${userConfig.comciganCode}&g=${userConfig.grade}&c=${userConfig.classNum}&name=${encodeURIComponent(userConfig.schoolName)}&of=${userConfig.officeCode}&sd=${userConfig.schoolCode}`;
+    const newUrl = `${window.location.pathname}?sc=${userConfig.comciganCode}&loc=${userConfig.localCode}&g=${userConfig.grade}&c=${userConfig.classNum}&name=${encodeURIComponent(userConfig.schoolName)}&of=${userConfig.officeCode}&sd=${userConfig.schoolCode}`;
     window.history.replaceState({}, '', newUrl);
 
     updateHeaderUI();
@@ -562,7 +552,7 @@
       alert('먼저 학교와 반을 설정해주세요.');
       return;
     }
-    const shareUrl = `${window.location.origin}${window.location.pathname}?sc=${userConfig.comciganCode}&g=${userConfig.grade}&c=${userConfig.classNum}&name=${encodeURIComponent(userConfig.schoolName)}&of=${userConfig.officeCode}&sd=${userConfig.schoolCode}`;
+    const shareUrl = `${window.location.origin}${window.location.pathname}?sc=${userConfig.comciganCode}&loc=${userConfig.localCode}&g=${userConfig.grade}&c=${userConfig.classNum}&name=${encodeURIComponent(userConfig.schoolName)}&of=${userConfig.officeCode}&sd=${userConfig.schoolCode}`;
     navigator.clipboard.writeText(shareUrl).then(() => {
       alert('우리 반 링크가 복사되었습니다.\n' + shareUrl);
     }).catch(() => {
@@ -607,7 +597,8 @@
     box.innerHTML = '<div class="empty">시간표를 불러오는 중입니다...</div>';
 
     try {
-      const url = `/api/timetable?schoolName=${encodeURIComponent(userConfig.schoolName)}&comciganCode=${userConfig.comciganCode}&grade=${userConfig.grade}&classNum=${userConfig.classNum}`;
+      // 💡 [핵심] school_code와 local_code를 넘겨 동명 학교 충돌 방지
+      const url = `/api/timetable?schoolName=${encodeURIComponent(userConfig.schoolName)}&comciganCode=${userConfig.comciganCode}&localCode=${userConfig.localCode || ''}&grade=${userConfig.grade}&classNum=${userConfig.classNum}`;
       const res = await fetch(url);
       const json = await res.json();
       
@@ -653,7 +644,6 @@
             const changedClass = isChanged ? 'grid-changed' : '';
             const changedTag = isChanged ? '<span class="grid-changed-tag">[변경]</span>' : '';
             
-            // 주간 표 변경 전 원래 과목 표시
             let origHtml = '';
             if (isChanged && item.original && item.original.subject) {
               origHtml = `<div class="grid-orig-sub">${item.original.subject}</div>`;
@@ -696,7 +686,6 @@
         const changedCardClass = isChanged ? 'is-changed' : '';
         const changedBadge = isChanged ? '<span class="changed-badge">[변경]</span>' : '';
 
-        // 💡 [변경 전 시간표 표시]
         let originalTextHtml = '';
         if (isChanged && item.original && item.original.subject) {
           const origTeacher = item.original.teacher ? ` (${item.original.teacher})` : '';
@@ -728,7 +717,6 @@
     }
   }
 
-  // 🤖 [AI 급식 분석 함수]
   function analyzeMealWithAI(dishes, calorie) {
     if (!dishes || dishes.length === 0) return null;
 
