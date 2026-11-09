@@ -2,10 +2,10 @@ from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pycomcigan import TimeTable, get_school_code
 import requests
+import re
 
 app = FastAPI()
 
-# CORS 허용
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -20,13 +20,14 @@ def search_school(name: str = Query(..., min_length=2)):
         schools = get_school_code(name.strip())
         comcigan_list = []
         for s in schools:
+            # 💡 [핵심 수정] pycomcigan 반환 순서: s[0]은 학교명, s[1]은 지역명!
             comcigan_list.append({
-                "region": s[0],
-                "name": s[1],
-                "comciganCode": s[2]
+                "name": str(s[0]),        # 학교명 (예: 서울고등학교)
+                "region": str(s[1]),      # 지역명 (예: 서울)
+                "comciganCode": str(s[2]) # 컴시간 코드
             })
 
-        # 나이스 학교 정보 검색 (급식용)
+        # 나이스 학교 정보 검색 (급식용 연동)
         neis_map = {}
         try:
             neis_url = f"https://open.neis.go.kr/hub/schoolInfo?Type=json&SCHUL_NM={name.strip()}"
@@ -55,11 +56,21 @@ def search_school(name: str = Query(..., min_length=2)):
     except Exception as e:
         return {"error": str(e), "list": []}
 
-# 2. 주간 시간표 API (pycomcigan 1.4.3 enc5 암호화 자동 해제)
+# 2. 주간 시간표 API
 @app.get("/api/timetable")
-def get_timetable(schoolName: str = Query(...), grade: int = Query(...), classNum: int = Query(...)):
+def get_timetable(
+    schoolName: str = Query(None),
+    comciganCode: str = Query(None),
+    grade: int = Query(...),
+    classNum: int = Query(...)
+):
+    target = schoolName or comciganCode
+    if not target:
+        return {"error": "학교 정보가 없습니다.", "data": []}
+
     try:
-        tt = TimeTable(schoolName.strip(), week_num=0)
+        # TimeTable에 학교명 또는 코드를 전달해 이번주(0) 시간표 가져오기
+        tt = TimeTable(target.strip(), week_num=0)
         class_schedule = tt.timetable[grade][class_num]
 
         week_data = []
@@ -91,8 +102,6 @@ def get_meal(officeCode: str = Query(""), schoolCode: str = Query(""), ymd: str 
         if "mealServiceDietInfo" in res:
             row = res["mealServiceDietInfo"][1]["row"][0]
             raw_dish = row.get("DDISH_NM", "")
-            # 알레르기 번호 제거
-            import re
             cleaned_dishes = [d.strip() for d in re.sub(r"[0-9*.<br/>\(\)]", "", raw_dish).split() if d.strip()]
             return {
                 "source": "live",
