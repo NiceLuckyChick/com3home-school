@@ -108,6 +108,28 @@
     .modal-btn { flex: 1; padding: 11px; border-radius: 10px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; }
     .btn-save { background: #4F46E5; color: #fff; }
     .btn-cancel { background: #F1F5F9; color: #64748B; }
+
+    /* 🌙 다크모드 자동 적용 CSS 추가됨 */
+    @media (prefers-color-scheme: dark) {
+      body { background-color: #0F172A; }
+      .app-container { background: #1E293B; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+      .header-left h1, .subject-info h3, .grid-subject, .dish-item, .modal h2 { color: #F8FAFC; }
+      .header-left p, .meal-date-label { color: #94A3B8; }
+      .icon-btn, .view-toggle-bar .toggle-btn, .modal-btn.btn-cancel, .tab-btn, .weekday-chip { background: #334155; color: #CBD5E1; }
+      .tab-btn.active { background: #4F46E5; color: #FFFFFF; }
+      .weekday-chip { border-color: #475569; background: #1E293B; }
+      .weekday-chip.active { background: #4F46E5; border-color: #4F46E5; color: #FFF; box-shadow: 0 3px 8px rgba(0,0,0,0.4); }
+      .view-title { color: #F1F5F9; }
+      .period-card, .grid-table, .meal-card, .modal, .school-list { background: #1E293B; border-color: #334155; }
+      .grid-table th { background: #334155; color: #CBD5E1; border-color: #475569; }
+      .grid-table td { border-color: #334155; }
+      .period-badge, .meal-tag { background: #334155; color: #CBD5E1; }
+      .empty, .footer, .teacher-badge { color: #94A3B8; }
+      .form-control { background: #0F172A; color: #F8FAFC; border-color: #475569; }
+      .school-item { border-color: #334155; color: #CBD5E1; }
+      .school-item:hover { background: #475569; color: #FFF; }
+      .modal-overlay { background: rgba(0,0,0,0.7); }
+    }
   </style>
 </head>
 <body>
@@ -392,7 +414,6 @@
     box.innerHTML = '<div class="empty">시간표를 불러오는 중...</div>';
 
     try {
-      // 💡 [핵심] pycomcigan은 학교 이름을 기반으로 시간표를 가져오므로 schoolName 전달
       const url = `/api/timetable?schoolName=${encodeURIComponent(userConfig.schoolName)}&comciganCode=${userConfig.comciganCode}&grade=${userConfig.grade}&classNum=${userConfig.classNum}`;
       const res = await fetch(url);
       const json = await res.json();
