@@ -20,9 +20,9 @@ def search_school(name: str = Query(..., min_length=2)):
         comcigan_list = []
         for s in schools:
             comcigan_list.append({
-                "name": str(s[0]),        
-                "region": str(s[1]),      
-                "comciganCode": str(s[2]) 
+                "region": str(s[0]),      # 💡 원래 위치로 원상복구 (지역)
+                "name": str(s[1]),        # 💡 원래 위치로 원상복구 (학교명)
+                "comciganCode": str(s[2]) # 컴시간 코드
             })
 
         neis_map = {}
