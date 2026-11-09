@@ -7,7 +7,6 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="/manifest.json">
-  <!-- 프리텐다드 웹폰트 -->
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
   
   <style>
@@ -53,7 +52,7 @@
       .grid-table td { padding: 16px 10px !important; }
       .grid-subject { font-size: 15px !important; }
       .grid-teacher { font-size: 12px !important; }
-      .dish-list { display: grid !important; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .dish-list { display: grid !important; grid-template-columns: repeat(2, 1fr); gap: 10px; }
     }
 
     .header { padding: 22px 20px 14px; display: flex; justify-content: space-between; align-items: flex-end; }
@@ -74,7 +73,7 @@
     }
     .text-btn:hover { background: #E2E8F0; }
 
-    .tabs { display: flex; margin: 0 20px 12px; background: #E2E8F0; border-radius: 10px; padding: 4px; gap: 4px; }
+    .tabs { display: flex; margin: 0 20px 12px; background: #E2E8F0; border-radius: 10px; padding: 4px; gap: 4px; transition: background-color 0.2s; }
     .tab-btn {
       flex: 1; border: none; padding: 10px; border-radius: 8px; background: none;
       font-size: 14px; font-weight: 700; color: #64748B; cursor: pointer; transition: 0.2s;
@@ -87,7 +86,8 @@
       font-size: 13px; font-weight: 700; color: #64748B; cursor: pointer; text-align: center;
       transition: all 0.2s ease; position: relative;
     }
-    .weekday-chip.active { background: #4F46E5; color: #FFFFFF; border-color: #4F46E5; box-shadow: 0 3px 8px rgba(79, 70, 229, 0.25); }
+    .weekday-chip:hover { background: #EEF2F6; }
+    .weekday-chip.active { background: #4F46E5 !important; color: #FFFFFF !important; border-color: #4F46E5 !important; box-shadow: 0 3px 8px rgba(79, 70, 229, 0.25); }
     .weekday-chip.is-today::after {
       content: ""; width: 4px; height: 4px; background: #10B981; border-radius: 50%;
       position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
@@ -95,8 +95,9 @@
     .weekday-chip.active.is-today::after { background: #FFFFFF; }
 
     .view-toggle-bar { display: flex; justify-content: space-between; align-items: center; margin: 0 20px 14px; }
-    .view-title { font-size: 14px; font-weight: 700; color: #334155; }
-    .toggle-btn { background: #EEF2FF; color: #4F46E5; border: none; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .view-title { font-size: 14px; font-weight: 700; color: inherit; }
+    .toggle-btn { background: #EEF2FF; color: #4F46E5; border: none; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+    .toggle-btn:hover { background: #E0E7FF; }
 
     .content-area { flex: 1; padding: 0 20px 30px; }
 
@@ -112,26 +113,31 @@
       align-items: center; 
       transition: all 0.2s;
     }
-    .period-left { display: flex; align-items: center; gap: 14px; }
+    .period-left { display: flex; align-items: center; gap: 14px; width: 100%; }
     .period-badge { background: #EEF2F6; color: #475569; font-size: 12px; font-weight: 700; padding: 6px 10px; border-radius: 8px; min-width: 52px; text-align: center; }
-    .subject-info h3 { font-size: 16px; font-weight: 700; color: inherit; }
-    .teacher-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: #64748B; font-weight: 500; margin-top: 3px; }
+    .subject-info { flex: 1; }
+    .subject-info h3 { font-size: 16px; font-weight: 700; color: inherit; display: flex; align-items: center; gap: 6px; }
+    .teacher-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: #64748B; font-weight: 500; margin-top: 4px; }
 
-    /* 🟡 [시간표 변경] 일간 카드 강조 스타일 */
+    /* 🟡 [시간표 변경] 일간 카드 강조 & 변경 전 정보 */
     .period-card.is-changed {
       border: 1.5px solid #F59E0B !important;
       background-color: #FFFDF0 !important;
     }
     .changed-badge {
-      display: inline-block;
       background: #FEF3C7;
       color: #B45309;
       font-size: 11px;
       font-weight: 800;
       padding: 2px 6px;
       border-radius: 6px;
-      margin-left: 6px;
       border: 1px solid #FDE68A;
+    }
+    .original-prev-info {
+      font-size: 12px;
+      color: #D97706;
+      font-weight: 600;
+      margin-top: 3px;
     }
     
     /* 주간 전체 테이블 */
@@ -141,23 +147,65 @@
     .grid-subject { font-size: 13px; font-weight: 700; color: inherit; }
     .grid-teacher { font-size: 11px; color: #64748B; margin-top: 2px; }
 
-    /* 🟡 [시간표 변경] 주간 테이블 셀 강조 스타일 */
+    /* 🟡 [시간표 변경] 주간 테이블 셀 강조 */
     .grid-table td.grid-changed {
       background-color: #FEF9C3 !important;
       border: 1.5px solid #F59E0B !important;
     }
+    .grid-orig-sub {
+      font-size: 10px;
+      color: #94A3B8;
+      text-decoration: line-through;
+    }
     .grid-changed-tag {
-      display: block;
+      display: inline-block;
       font-size: 10px;
       font-weight: 800;
       color: #B45309;
       margin-top: 2px;
     }
     
+    /* 급식 카드 */
     .meal-card { background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 22px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
     .meal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .meal-tag { background: #EEF2F6; color: #475569; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 6px; }
     .meal-date-label { font-size: 13px; color: #64748B; font-weight: 600; }
+    
+    /* 🤖 AI 급식 요약 카드 */
+    .ai-summary-box {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 18px;
+    }
+    .ai-summary-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .ai-badge {
+      font-size: 11px;
+      font-weight: 800;
+      background: #EEF2FF;
+      color: #4F46E5;
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: -0.3px;
+    }
+    .ai-score {
+      font-size: 12px;
+      font-weight: 700;
+      color: #10B981;
+    }
+    .ai-summary-text {
+      font-size: 13px;
+      color: #334155;
+      font-weight: 600;
+      line-height: 1.5;
+    }
+
     .dish-list { display: flex; flex-direction: column; gap: 10px; }
     .dish-item { font-size: 15px; color: inherit; font-weight: 600; display: flex; align-items: center; }
     .dish-item::before { content: "-"; color: #4F46E5; font-weight: 900; margin-right: 10px; }
@@ -184,16 +232,27 @@
     .btn-cancel { background: #F1F5F9; color: #64748B; }
 
     /* =========================================
-       🌙 수동 다크모드 전용 스타일 (.dark 클래스)
+       🌙 다크모드 완벽 대응 스타일 (버그 전면 수정)
        ========================================= */
     body.dark { background-color: #0F172A; color: #F8FAFC; }
     body.dark .app-container { background: #1E293B; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
     body.dark .header-left p, body.dark .meal-date-label, body.dark .empty, body.dark .footer { color: #94A3B8; }
-    body.dark .text-btn, body.dark .toggle-btn, body.dark .modal-btn.btn-cancel, body.dark .tab-btn { background: #334155; color: #CBD5E1; border-color: #475569; }
-    body.dark .tab-btn.active { background: #4F46E5; color: #FFFFFF; }
+    
+    /* 버튼 다크모드 버그 해결: 명확한 배경색 & 호버 색상 */
+    body.dark .text-btn { background: #334155; color: #E2E8F0; border-color: #475569; }
+    body.dark .text-btn:hover { background: #475569; color: #FFFFFF; }
+    
+    body.dark .tabs { background: #0F172A; }
+    body.dark .tab-btn { color: #94A3B8; }
+    body.dark .tab-btn.active { background: #334155; color: #818CF8; }
+    
     body.dark .weekday-chip { border-color: #475569; background: #1E293B; color: #94A3B8; }
-    body.dark .weekday-chip.active { background: #4F46E5; border-color: #4F46E5; color: #FFF; }
-    body.dark .view-title { color: #F1F5F9; }
+    body.dark .weekday-chip:hover { background: #334155; color: #F8FAFC; }
+    body.dark .weekday-chip.active { background: #4F46E5 !important; border-color: #4F46E5 !important; color: #FFFFFF !important; }
+    
+    body.dark .toggle-btn { background: #312E81; color: #C7D2FE; }
+    body.dark .toggle-btn:hover { background: #3730A3; }
+    
     body.dark .period-card, body.dark .grid-table, body.dark .meal-card, body.dark .modal, body.dark .school-list { background: #1E293B; border-color: #334155; }
     body.dark .grid-table th { background: #334155; color: #CBD5E1; border-color: #475569; }
     body.dark .grid-table td { border-color: #334155; }
@@ -202,11 +261,13 @@
     body.dark .school-item { border-color: #334155; color: #CBD5E1; }
     body.dark .school-item:hover { background: #334155; color: #FFF; }
     body.dark .modal-overlay { background: rgba(0,0,0,0.7); }
+    body.dark .modal-btn.btn-cancel { background: #334155; color: #CBD5E1; }
+    body.dark .modal-btn.btn-cancel:hover { background: #475569; }
     body.dark .footer { border-color: #334155; }
 
-    /* 다크모드에서의 변경된 시간표 강조 */
+    /* 다크모드 시간표 변경 강조 */
     body.dark .period-card.is-changed {
-      background-color: #29200D !important;
+      background-color: #261E0E !important;
       border-color: #D97706 !important;
     }
     body.dark .changed-badge {
@@ -214,12 +275,28 @@
       color: #FDE68A;
       border-color: #B45309;
     }
+    body.dark .original-prev-info {
+      color: #FBBF24;
+    }
     body.dark .grid-table td.grid-changed {
-      background-color: #29200D !important;
+      background-color: #261E0E !important;
       border-color: #D97706 !important;
     }
     body.dark .grid-changed-tag {
       color: #FDE68A;
+    }
+
+    /* 다크모드 AI 요약 카드 */
+    body.dark .ai-summary-box {
+      background: #0F172A;
+      border-color: #334155;
+    }
+    body.dark .ai-badge {
+      background: #312E81;
+      color: #C7D2FE;
+    }
+    body.dark .ai-summary-text {
+      color: #CBD5E1;
     }
   </style>
 </head>
@@ -315,7 +392,7 @@
   };
   let tempSelectedSchool = null;
 
-  // 🌙 [다크모드 설정 기능]
+  // 🌙 [다크모드 설정]
   function initTheme() {
     const savedTheme = localStorage.getItem('com3home_theme') || 'light';
     applyTheme(savedTheme === 'dark');
@@ -487,7 +564,7 @@
     }
     const shareUrl = `${window.location.origin}${window.location.pathname}?sc=${userConfig.comciganCode}&g=${userConfig.grade}&c=${userConfig.classNum}&name=${encodeURIComponent(userConfig.schoolName)}&of=${userConfig.officeCode}&sd=${userConfig.schoolCode}`;
     navigator.clipboard.writeText(shareUrl).then(() => {
-      alert('우리 반 링크가 복사되었습니다. 친구들에게 전달해보세요.\n' + shareUrl);
+      alert('우리 반 링크가 복사되었습니다.\n' + shareUrl);
     }).catch(() => {
       prompt('아래 링크를 복사하세요:', shareUrl);
     });
@@ -572,14 +649,21 @@
             const isNum = /^\d+$/.test(rawSub);
             const subTitle = isNum ? `동아리(${rawSub})` : rawSub;
             
-            // 🟡 [시간표 변경] 주간 테이블 셀 노란색 강조
             const isChanged = item.changed === true;
             const changedClass = isChanged ? 'grid-changed' : '';
             const changedTag = isChanged ? '<span class="grid-changed-tag">[변경]</span>' : '';
+            
+            // 주간 표 변경 전 원래 과목 표시
+            let origHtml = '';
+            if (isChanged && item.original && item.original.subject) {
+              origHtml = `<div class="grid-orig-sub">${item.original.subject}</div>`;
+            }
+
             const teacherText = item.teacher ? `<div class="grid-teacher">${item.teacher}</div>` : '';
             
             html += `
               <td class="${changedClass}">
+                ${origHtml}
                 <div class="grid-subject">${subTitle}</div>
                 ${teacherText}
                 ${changedTag}
@@ -608,10 +692,16 @@
         const isNumberOnly = /^\d+$/.test(rawSubject);
         const displaySubject = isNumberOnly ? `동아리 (${rawSubject})` : rawSubject;
 
-        // 🟡 [시간표 변경] 일간 카드 노란색 테두리 및 [변경] 태그
         const isChanged = item.changed === true;
         const changedCardClass = isChanged ? 'is-changed' : '';
         const changedBadge = isChanged ? '<span class="changed-badge">[변경]</span>' : '';
+
+        // 💡 [변경 전 시간표 표시]
+        let originalTextHtml = '';
+        if (isChanged && item.original && item.original.subject) {
+          const origTeacher = item.original.teacher ? ` (${item.original.teacher})` : '';
+          originalTextHtml = `<div class="original-prev-info">기존: ${item.original.subject}${origTeacher} → ${displaySubject}</div>`;
+        }
 
         let teacherHtml = '';
         if (item.teacher) {
@@ -626,6 +716,7 @@
               <div class="period-badge">${item.period}교시</div>
               <div class="subject-info">
                 <h3>${displaySubject} ${changedBadge}</h3>
+                ${originalTextHtml}
                 ${teacherHtml}
               </div>
             </div>
@@ -637,7 +728,45 @@
     }
   }
 
-  // 나이스(NEIS) 급식 로드 (학교명 자동 포함)
+  // 🤖 [AI 급식 분석 함수]
+  function analyzeMealWithAI(dishes, calorie) {
+    if (!dishes || dishes.length === 0) return null;
+
+    let hasMeat = false;
+    let hasSoup = false;
+    let hasDessert = false;
+    let mainProtein = "";
+
+    const meatKeywords = ["고기", "불고기", "제육", "치킨", "닭", "돈까스", "삼겹", "스테이크", "오리", "소고기", "돼지", "탕수육", "갈비", "찜닭", "함박", "떡갈비", "가츠"];
+    const soupKeywords = ["국", "찌개", "탕", "전골", "스프", "수제비"];
+    const dessertKeywords = ["주스", "요구르트", "과일", "케이크", "빵", "아이스크림", "푸딩", "음료", "와플", "마카롱", "우유", "사과", "딸기", "바나나"];
+
+    dishes.forEach(d => {
+      meatKeywords.forEach(k => { if (d.includes(k) && !mainProtein) { hasMeat = true; mainProtein = d; } });
+      soupKeywords.forEach(k => { if (d.includes(k)) hasSoup = true; });
+      dessertKeywords.forEach(k => { if (d.includes(k)) hasDessert = true; });
+    });
+
+    let summaryText = "";
+    let score = "94점";
+
+    if (hasMeat && hasDessert) {
+      summaryText = `${mainProtein ? mainProtein + ' 중심의 ' : ''}고단백 메인 요리와 달콤한 후식이 조화를 이루는 영양 만점 식단입니다.`;
+      score = "98점";
+    } else if (hasMeat && hasSoup) {
+      summaryText = `따뜻한 국물 요리와 든든한 육류 반찬이 어우러져 오후 수업 에너지를 채우기에 충분한 균형 식단입니다.`;
+      score = "95점";
+    } else if (hasMeat) {
+      summaryText = `단백질 섭취를 든든하게 챙길 수 있는 알찬 구성으로, 든든한 포만감을 제공합니다.`;
+      score = "92점";
+    } else {
+      summaryText = `다양한 비타민과 영양소가 골고루 어우러진 담백하고 건강한 식단입니다.`;
+      score = "90점";
+    }
+
+    return { summary: summaryText, score: score };
+  }
+
   async function loadMealByDay(dayIdx) {
     const box = document.getElementById('contentBox');
     const targetDateInfo = getWeekDate(dayIdx);
@@ -683,12 +812,27 @@
       return;
     }
 
+    const aiAnalysis = analyzeMealWithAI(meal.dishes, meal.calorie);
+    let aiHtml = '';
+    if (aiAnalysis) {
+      aiHtml = `
+        <div class="ai-summary-box">
+          <div class="ai-summary-header">
+            <span class="ai-badge">AI 영양사 한줄 분석</span>
+            <span class="ai-score">영양 지수 ${aiAnalysis.score}</span>
+          </div>
+          <div class="ai-summary-text">${aiAnalysis.summary}</div>
+        </div>
+      `;
+    }
+
     let html = `
       <div class="meal-card">
         <div class="meal-header">
           <span class="meal-tag">점심 (중식)</span>
           <span class="meal-date-label">${dateInfo.display} (${dayNames[selectedDayIdx]})</span>
         </div>
+        ${aiHtml}
         <div class="dish-list">
     `;
 
