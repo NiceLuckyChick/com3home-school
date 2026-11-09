@@ -1,0 +1,5 @@
+fastapi
+uvicorn
+pycomcigan>=1.4.3
+requests
+pycryptodomex
