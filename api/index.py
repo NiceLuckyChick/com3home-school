@@ -18,13 +18,17 @@ def search_school(name: str = Query(..., min_length=2)):
     try:
         schools = get_school_code(name.strip())
         comcigan_list = []
+        
+        # 💡 [핵심 수정] 실제 pycomcigan 1.4.3 응답 순서에 맞게 정확히 매핑!
+        # 응답 구조: [지역코드(0), 지역명(1), 학교명(2), 학교코드(3)]
         for s in schools:
             comcigan_list.append({
-                "region": str(s[0]),      # 💡 원래 위치로 원상복구 (지역)
-                "name": str(s[1]),        # 💡 원래 위치로 원상복구 (학교명)
-                "comciganCode": str(s[2]) # 컴시간 코드
+                "region": str(s[1]),      # 지역명 (예: 경기)
+                "name": str(s[2]),        # 학교명 (예: XX고등학교)
+                "comciganCode": str(s[3]) # 컴시간 학교코드
             })
 
+        # 나이스(NEIS) 학교 및 교육청 코드 검색
         neis_map = {}
         try:
             neis_url = f"https://open.neis.go.kr/hub/schoolInfo?Type=json&SCHUL_NM={name.strip()}"
@@ -38,15 +42,21 @@ def search_school(name: str = Query(..., min_length=2)):
         except Exception:
             pass
 
+        # 💡 [급식 오류 수정] 컴시간 학교명과 나이스 학교명이 미세하게 달라도 매칭되게 처리
         result_list = []
         for s in comcigan_list:
-            neis = neis_map.get(s["name"], {})
+            matched_neis = {}
+            for neis_name, neis_data in neis_map.items():
+                if s["name"] in neis_name or neis_name in s["name"]:
+                    matched_neis = neis_data
+                    break
+            
             result_list.append({
                 "name": s["name"],
                 "region": s["region"],
                 "comciganCode": s["comciganCode"],
-                "officeCode": neis.get("officeCode", ""),
-                "schoolCode": neis.get("schoolCode", "")
+                "officeCode": matched_neis.get("officeCode", ""),
+                "schoolCode": matched_neis.get("schoolCode", "")
             })
 
         return {"list": result_list}
